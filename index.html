@@ -1,111 +1,281 @@
-// ================================
-// SUNO STABLE V3 – PERFORMANCE OPTIMIZED
-// ================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Digital Song Factory V3.0 ENTERPRISE</title>
 
-class SunoEngine {
+<style>
+:root{
+--bg:#0f1115;
+--panel:#171a21;
+--accent:#00ffc3;
+--text:#e6e6e6;
+--muted:#8b949e;
+}
 
-  constructor() {
-    this.artistLock = null
-    this.cache = new Map()
-  }
+*{box-sizing:border-box}
 
-  // ---------- RANDOM FAST ----------
-  randomPick(arr){
-    return arr[Math.floor(Math.random()*arr.length)]
-  }
+body{
+margin:0;
+font-family:system-ui,-apple-system,Segoe UI,Roboto;
+background:var(--bg);
+color:var(--text);
+}
 
-  randomTitle(){
-    const words1 = ["Midnight","Neon","Silent","Golden","Falling","Crimson","Velvet"]
-    const words2 = ["Dream","Echo","Light","Shadow","Fire","Sky","Rain"]
-    return this.randomPick(words1)+" "+this.randomPick(words2)
-  }
+h1{
+color:var(--accent);
+font-weight:600;
+}
 
-  randomMood(){
-    return this.randomPick(["Emotional","Dark Pop","Summer Vibes","Melancholic","Upbeat","Romantic"])
-  }
+.container{
+max-width:1100px;
+margin:auto;
+padding:20px;
+}
 
-  // ---------- ARTIST LOCK ----------
-  lockArtist(name){
-    this.artistLock = name
-  }
+.panel{
+background:var(--panel);
+padding:20px;
+border-radius:12px;
+margin-bottom:20px;
+}
 
-  unlockArtist(){
-    this.artistLock = null
-  }
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:15px;
+}
 
-  getArtist(input){
-    if(this.artistLock) return this.artistLock
-    return input || "AI Generated Artist"
-  }
+label{
+font-size:12px;
+color:var(--muted);
+}
 
-  // ---------- RHYME PATTERN ----------
-  rhymePattern(type){
-    const patterns = {
-      AABB: ["a","a","b","b"],
-      ABAB: ["a","b","a","b"],
-      AAAA: ["a","a","a","a"]
-    }
-    return patterns[type] || patterns.AABB
-  }
+input,select,textarea,button{
+width:100%;
+padding:8px;
+margin-top:6px;
+border-radius:8px;
+border:none;
+font-size:14px;
+}
 
-  // ---------- SMART RHYME (LIGHTWEIGHT) ----------
-  smartRhyme(baseLine, pattern){
-    const endings = {
-      a: ["ใจ","ไป","ไกล","ใหม่"],
-      b: ["คืน","ฝืน","ยืน","ชื่น"]
-    }
-    return pattern.map(p=>{
-      const word = this.randomPick(endings[p])
-      return baseLine+" "+word
-    }).join("\n")
-  }
+textarea{
+min-height:140px;
+resize:vertical;
+}
 
-  // ---------- LYRICS GENERATOR ----------
-  generateLyrics({original, mood, patternType}){
+button{
+background:var(--accent);
+color:#000;
+font-weight:600;
+cursor:pointer;
+transition:.2s;
+}
 
-    const cacheKey = original+mood+patternType
-    if(this.cache.has(cacheKey)) return this.cache.get(cacheKey)
+button:hover{opacity:.85}
 
-    const pattern = this.rhymePattern(patternType)
+.output{
+white-space:pre-wrap;
+font-family:monospace;
+background:#111;
+padding:15px;
+border-radius:10px;
+}
+</style>
+</head>
+<body>
 
-    let lyrics
+<div class="container">
 
-    if(original){
-      lyrics = this.smartRhyme(original, pattern)
-    } else {
-      const seed = mood || this.randomMood()
-      lyrics = this.smartRhyme("ในคืนที่ "+seed, pattern)
-    }
+<h1>🎵 Digital Song Factory — ENTERPRISE</h1>
 
-    this.cache.set(cacheKey, lyrics)
-    return lyrics
-  }
+<div class="panel">
+<div class="grid">
 
-  // ---------- ALGORITHM PROOF REWRITE ----------
-  rewriteAlgorithmProof(text){
-    return text.split("\n").map(line=>{
-      return line.replace("รัก","โอบกอด").replace("ใจ","หัวใจ")
-    }).join("\n")
-  }
+<div>
+<label>Emotion</label>
+<input id="emotion"/>
+</div>
 
-  // ---------- FULL BUILD ----------
-  buildSong({
-    title,
-    artist,
-    lyrics,
-    mood,
-    pattern="AABB",
-    rewrite=false
-  }){
+<div>
+<label>Genre</label>
+<select id="genre">
+<option>Auto</option>
+<option>Pop</option>
+<option>EDM</option>
+<option>Ballad</option>
+<option>Trap</option>
+</select>
+</div>
 
-    const finalTitle = title || this.randomTitle()
-    const finalArtist = this.getArtist(artist)
-    const finalLyrics = this.generateLyrics({
-      original: lyrics,
-      mood: mood,
-      patternType: pattern
-    })
+<div>
+<label>Intensity</label>
+<select id="intensity">
+<option value="1">Soft</option>
+<option value="2">Medium</option>
+<option value="3">Strong</option>
+<option value="4">Extreme</option>
+</select>
+</div>
 
-    const processedLyrics = rewrite
-      ? this.rewriteAlgorithmProof(finalLyrics)
-      : finalLyrics
+<div>
+<label>BPM</label>
+<input id="bpm" type="number" placeholder="Auto"/>
+</div>
+
+<div>
+<label>Key</label>
+<select id="key">
+<option value="AUTO">Auto</option>
+<option>C Major</option>
+<option>G Major</option>
+<option>A Minor</option>
+<option>E Minor</option>
+</select>
+</div>
+
+<div>
+<label>Commercial Mode</label>
+<select id="commercial">
+<option>Radio</option>
+<option>Streaming</option>
+<option>Extended</option>
+</select>
+</div>
+
+</div>
+
+<br/>
+<button onclick="App.generate()">Generate Production Report</button>
+</div>
+
+<div class="panel">
+<h3>📊 Enterprise Output</h3>
+<div id="output" class="output"></div>
+</div>
+
+</div>
+
+<script>
+
+/* ==============================
+   ENTERPRISE STATE MANAGEMENT
+================================= */
+
+const State={
+emotion:"",
+genre:"",
+intensity:1,
+bpm:null,
+key:"",
+commercial:""
+}
+
+/* ==============================
+   CORE AI ENGINE
+================================= */
+
+const AIEngine={
+
+autoBPM(genre){
+switch(genre){
+case "EDM": return 128
+case "Trap": return 140
+case "Ballad": return 72
+default: return 100
+}
+},
+
+autoKey(emotion){
+if(emotion.includes("sad")||emotion.includes("เศร้า")) return "A Minor"
+return "C Major"
+},
+
+generateScores(){
+return{
+hook:75+Math.random()*20,
+viral:65+Math.random()*20,
+emotion:70+Math.random()*20
+}
+},
+
+calculateHit(scores,state){
+let base=(scores.hook+scores.viral)/2
+
+if(state.intensity>=3) base+=5
+if(state.commercial==="Radio") base+=3
+if(state.bpm>=100&&state.bpm<=130) base+=4
+
+return{
+streaming:Math.min(base+5,100),
+radio:Math.min(base+2,100),
+viral:Math.min(base+8,100),
+overall:Math.min((base+5),100)
+}
+}
+
+}
+
+/* ==============================
+   ENTERPRISE CONTROLLER
+================================= */
+
+const App={
+
+readState(){
+State.emotion=document.getElementById("emotion").value||"emotion"
+State.genre=document.getElementById("genre").value
+State.intensity=parseInt(document.getElementById("intensity").value)
+State.bpm=document.getElementById("bpm").value
+State.key=document.getElementById("key").value
+State.commercial=document.getElementById("commercial").value
+
+if(!State.bpm){
+State.bpm=AIEngine.autoBPM(State.genre)
+}
+
+if(State.key==="AUTO"){
+State.key=AIEngine.autoKey(State.emotion)
+}
+},
+
+generate(){
+
+this.readState()
+
+const scores=AIEngine.generateScores()
+const hit=AIEngine.calculateHit(scores,State)
+
+const report=`
+=== AI RECORD LABEL ENTERPRISE REPORT ===
+
+Emotion: ${State.emotion}
+Genre: ${State.genre}
+Intensity: ${State.intensity}
+
+BPM: ${State.bpm}
+Key: ${State.key}
+Commercial Mode: ${State.commercial}
+
+--- AI Market Metrics ---
+Hook Score: ${Math.floor(scores.hook)}%
+Viral Score: ${Math.floor(scores.viral)}%
+
+Streaming Potential: ${Math.floor(hit.streaming)}%
+Radio Potential: ${Math.floor(hit.radio)}%
+Viral Potential: ${Math.floor(hit.viral)}%
+Overall Hit Probability: ${Math.floor(hit.overall)}%
+`
+
+document.getElementById("output").innerText=report
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
