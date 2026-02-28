@@ -1,131 +1,98 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Suno Stable V1.7.1 PRO</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA Song Generator</title>
+
+<!-- PWA Meta -->
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="data:application/json,{
+  &quot;name&quot;:&quot;DNA Song Generator&quot;,
+  &quot;short_name&quot;:&quot;DNA Song&quot;,
+  &quot;display&quot;:&quot;standalone&quot;,
+  &quot;background_color&quot;:&quot;#111111&quot;,
+  &quot;theme_color&quot;:&quot;#111111&quot;
+}">
+
 <style>
-body{font-family:Arial;background:#0f172a;color:#fff;margin:0;padding:20px}
-.container{max-width:950px;margin:auto;background:#1e293b;padding:22px;border-radius:14px;box-shadow:0 15px 35px rgba(0,0,0,.45)}
-h1{margin-top:0}
-label{font-size:13px;opacity:.85}
-input,textarea,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#334155;color:#fff}
-button{padding:10px 16px;margin:6px 6px 6px 0;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
-.primary{background:#3b82f6;color:#fff}
-.success{background:#10b981;color:#fff}
-.warning{background:#f59e0b;color:#000}
-.pro{background:#8b5cf6;color:#fff}
-.output{white-space:pre-wrap;background:#0b1220;padding:16px;border-radius:10px;margin-top:16px;line-height:1.6}
+body{
+  font-family:Arial;
+  background:#111;
+  color:white;
+  padding:20px;
+}
+input,select,button,textarea{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:none;
+}
+button{
+  background:#ff0077;
+  color:white;
+  font-weight:bold;
+}
+textarea{
+  height:140px;
+  background:#222;
+  color:#00ffcc;
+}
 </style>
 </head>
 <body>
-<div class="container">
-<h1>Suno Stable V1.7.1 PRO</h1><label>Song Title</label> <input id="title" placeholder="Leave blank for AI" />
 
-<label>Artist</label> <input id="artist" placeholder="Artist name" />
+<h1>DNA Song Generator</h1>
 
-<label>Mood</label> <input id="mood" placeholder="Romantic / Dark / Summer" />
+<input id="artist" placeholder="Reference Artist">
+<select id="mood">
+<option>Disco</option>
+<option>Romantic</option>
+<option>Dark</option>
+<option>Emotional</option>
+</select>
 
-<label>Rhyme Pattern</label> <select id="pattern">
+<button onclick="generateSong()">Generate</button>
 
-<option value="AABB">AABB</option>
-<option value="ABAB">ABAB</option>
-<option value="AAAA">AAAA</option>
-</select><label>Structure Mode</label> <select id="structure">
+<h3>Title</h3>
+<textarea id="title"></textarea>
 
-<option value="basic">Basic (4 lines)</option>
-<option value="pro">PRO (Verse / Chorus)</option>
-</select><label>Original Lyrics (optional)</label>
+<h3>Style</h3>
+<textarea id="style"></textarea>
 
-<textarea id="lyrics" rows="6" placeholder="Leave blank to auto generate"></textarea><div>
-<button class="primary" onclick="buildSong()">Generate Song</button>
-<button class="success" onclick="upgradeLyrics()">AI Upgrade Lyrics</button>
-<button class="warning" onclick="rewriteSong()">Rewrite Full Song</button>
-<button class="pro" onclick="regenerateNewSong()">Regenerate New Version</button>
-</div><div class="output" id="output"></div>
-</div><script>
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+<h3>Lyrics</h3>
+<textarea id="lyrics"></textarea>
 
-function randomTitle(){
-const a=["Midnight","Neon","Silent","Golden","Lonely","Broken"]
-const b=["Dream","Light","Echo","Fire","Rain","Memory"]
-return pick(a)+" "+pick(b)
+<script>
+function random(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
 }
 
-function randomMood(){
-return pick(["Romantic","Dark","Melancholic","Summer Pop","Emotional"])
-}
+function generateSong(){
+  const artist = document.getElementById("artist").value;
+  const mood = document.getElementById("mood").value;
 
-function getPattern(type){
-const patterns={
-AABB:["a","a","b","b"],
-ABAB:["a","b","a","b"],
-AAAA:["a","a","a","a"]
-}
-return patterns[type]||patterns.AABB
-}
+  const words = ["Midnight","Neon","Fire","Shadow","Heartbeat","Electric"];
+  const title = random(words)+" "+random(words);
 
-function smartRhyme(seed,patternType){
-const endings={
-a:["ใจ","ไกล","ใหม่","ไป","ใส"],
-b:["คืน","ฝืน","ยืน","ชื่น","ตื่น"]
-}
-const pattern=getPattern(patternType)
-return pattern.map(p=>seed+" "+pick(endings[p])).join("\n")
-}
+  document.getElementById("title").value = title;
 
-function buildStructured(seed,pattern){
-const verse=smartRhyme(seed,pattern)
-const chorus=smartRhyme("หัวใจยังเรียกหา "+seed,pattern)
-return "[Verse]\n"+verse+"\n\n[Chorus]\n"+chorus
+  document.getElementById("style").value =
+`Inspired by: ${artist}
+Mood: ${mood}
+Structure: Intro – Verse – Chorus – Bridge
+Wide stereo harmony, groovy bass`;
+
+  document.getElementById("lyrics").value =
+`[Verse]
+City lights calling your name
+
+[Chorus]
+${title}
+Burning in the night`;
 }
+</script>
 
-function buildSong(){
-const title=document.getElementById("title").value||randomTitle()
-const artist=document.getElementById("artist").value||"AI Generated Artist"
-const mood=document.getElementById("mood").value||randomMood()
-const pattern=document.getElementById("pattern").value
-const structure=document.getElementById("structure").value
-const original=document.getElementById("lyrics").value.trim()
-
-const seed=original||("ในคืนที่ "+mood)
-
-let lyrics=""
-if(structure==="pro"){
-lyrics=buildStructured(seed,pattern)
-}else{
-lyrics=smartRhyme(seed,pattern)
-}
-
-document.getElementById("output").innerText=
-"Title: "+title+"\n"+
-"Artist: "+artist+"\n"+
-"Mood: "+mood+"\n"+
-"Pattern: "+pattern+"\n"+
-"Structure: "+structure+"\n\n"+
-lyrics
-}
-
-function regenerateNewSong(){
-document.getElementById("lyrics").value=""
-buildSong()
-}
-
-function upgradeLyrics(){
-const out=document.getElementById("output")
-out.innerText=out.innerText
-.replace(/รัก/g,"หลงรัก")
-.replace(/ใจ/g,"หัวใจ")
-.replace(/คืน/g,"ค่ำคืน")
-}
-
-function rewriteSong(){
-const out=document.getElementById("output")
-const lines=out.innerText.split("\n")
-out.innerText=lines.map(l=>
-l.startsWith("Title:")||l.startsWith("Artist:")||l.startsWith("Mood:")||l.startsWith("Pattern:")||l.startsWith("Structure:")
-?l
-:"ฉันยังจำ "+l
-).join("\n")
-}
-</script></body>
+</body>
 </html>
