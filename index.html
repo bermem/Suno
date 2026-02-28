@@ -2,13 +2,13 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Digital Song Factory V1.7 STABLE</title>
+<title>Digital Song Factory V3.0 STABLE</title>
 <style>
 body{font-family:Arial;background:#0f0f0f;color:#eee;padding:20px}
 h1{color:#00ffc3}
 .section{border:1px solid #333;padding:15px;margin-bottom:20px;border-radius:10px}
 input,textarea,select,button{width:100%;padding:8px;margin-top:6px;margin-bottom:10px;border-radius:6px;border:none}
-textarea{height:180px}
+textarea{height:220px}
 button{background:#00ffc3;color:#000;font-weight:bold;cursor:pointer}
 button:hover{opacity:.85}
 .output{background:#1b1b1b;padding:15px;border-radius:8px;white-space:pre-wrap}
@@ -19,7 +19,7 @@ canvas{background:#111;border-radius:10px;margin-top:10px}
 </head>
 <body>
 
-<h1>🎵 Digital Song Factory V1.7 STABLE</h1>
+<h1>🎵 Digital Song Factory V3.0 STABLE</h1>
 
 <div class="section">
 <h3>INPUT ZONE</h3>
@@ -30,299 +30,10 @@ canvas{background:#111;border-radius:10px;margin-top:10px}
 <label>Prototype Song Title</label>
 <input type="text" id="prototypeSong">
 
-<label>Creative Emotion / Intent</label>
+<label>Creative Emotion</label>
 <input type="text" id="emotion">
 
 <label>Original Lyrics</label>
 <textarea id="lyrics"></textarea>
 
-<button onclick="upgradeLyrics()">✨ AI Upgrade Lyrics</button>
-
-<h4>🎼 Genre Menu</h4>
-<select id="genre">
-<option>Auto</option>
-<option>Thai Pop</option>
-<option>T-POP Dance</option>
-<option>Indie Pop</option>
-<option>R&B</option>
-<option>EDM Festival</option>
-<option>Acoustic Ballad</option>
-<option>Trap Pop</option>
-</select>
-
-<label><input type="checkbox" id="lockGenre"> Lock Genre</label>
-
-<h4>🎼 Section Rhyme Control (V1.7)</h4>
-
-<label>Verse Pattern</label>
-<select id="versePattern">
-<option value="AUTO">AUTO</option>
-<option value="AABB">AABB</option>
-<option value="ABAB">ABAB</option>
-<option value="AAAA">AAAA</option>
-</select>
-
-<label>Chorus Pattern</label>
-<select id="chorusPattern">
-<option value="AUTO">AUTO</option>
-<option value="AABB">AABB</option>
-<option value="ABAB">ABAB</option>
-<option value="AAAA">AAAA</option>
-</select>
-
-<div class="row">
-<button onclick="runSystem()">🚀 Generate 1 Version</button>
-<button onclick="generateMulti()">🎤 Generate 4 Versions</button>
-</div>
-
-<button onclick="randomAll()">🔀 Random All</button>
-
-<p class="small">* AI จะตั้งชื่อเพลงใหม่ให้อัตโนมัติ</p>
-</div>
-
-<div class="section">
-<h3>OUTPUT</h3>
-<div id="output" class="output">รอการประมวลผล...</div>
-</div>
-
-<div class="section">
-<h3>📊 Hit Dashboard</h3>
-<canvas id="chart" width="400" height="200"></canvas>
-</div>
-
-<script>
-
-function randomItem(arr){
-return arr[Math.floor(Math.random()*arr.length)]
-}
-
-function generateTitle(emotion){
-if(emotion) return emotion.split(" ")[0]+" ที่ไม่จางหาย"
-const words=["Midnight Echo","คืนที่ไม่ลืม","Heartbeat Signal","Shadow Memory"]
-return randomItem(words)
-}
-
-function generateScores(){
-return {
-hook:Math.floor(Math.random()*20)+75,
-emotion:Math.floor(Math.random()*20)+70,
-viral:Math.floor(Math.random()*20)+65,
-original:Math.floor(Math.random()*15)+80
-}
-}
-
-function drawChart(scores){
-let canvas=document.getElementById("chart")
-let ctx=canvas.getContext("2d")
-ctx.clearRect(0,0,400,200)
-
-let values=[scores.hook,scores.emotion,scores.viral,scores.original]
-let labels=["Hook","Emotion","Viral","Original"]
-
-for(let i=0;i<values.length;i++){
-let height=values[i]
-ctx.fillStyle="#00ffc3"
-ctx.fillRect(20+i*90,180-height,50,height)
-ctx.fillStyle="#fff"
-ctx.fillText(labels[i],25+i*90,195)
-}
-}
-
-function autoSelectPattern(genre, emotion){
-if(genre.includes("Ballad")) return "AABB"
-if(genre.includes("Dance")) return "AAAA"
-if(genre.includes("EDM")) return "AAAA"
-if(genre.includes("Indie")) return "ABAB"
-if(emotion && emotion.includes("เศร้า")) return "AABB"
-return "ABAB"
-}
-
-function applySectionPattern(lines){
-
-let genre=document.getElementById("genre").value
-let emotion=document.getElementById("emotion").value
-
-let versePattern=document.getElementById("versePattern").value
-let chorusPattern=document.getElementById("chorusPattern").value
-
-if(versePattern==="AUTO"){
-versePattern=autoSelectPattern(genre,emotion)
-}
-if(chorusPattern==="AUTO"){
-chorusPattern=autoSelectPattern(genre,emotion)
-}
-
-let result=[]
-let currentPattern=versePattern
-
-lines.forEach(line=>{
-
-if(line.includes("[Chorus]")){
-currentPattern=chorusPattern
-result.push(line)
-return
-}
-
-if(line.includes("[Verse")){
-currentPattern=versePattern
-result.push(line)
-return
-}
-
-if(line.trim()===""){
-result.push("")
-return
-}
-
-let baseWord="ใจ"
-
-if(currentPattern==="AAAA"){
-result.push(line+" "+baseWord)
-}
-else if(currentPattern==="AABB"){
-result.push(line+" "+baseWord)
-}
-else if(currentPattern==="ABAB"){
-result.push(line+" "+(Math.random()>0.5?"ใจ":"ไกล"))
-}
-
-})
-
-return result
-}
-
-function generateFreshSong(){
-
-let emotion=document.getElementById("emotion").value || "ความทรงจำ"
-let hook=emotion+"ที่ไม่จางหาย"
-
-return `[Verse 1]
-ฉันเดินลำพังในค่ำคืน
-เสียงลมหายใจยังสะอื้น
-ภาพเธอยังชัดในความฝืน
-หัวใจยังตื่นแม้ต้องยืน
-
-[Pre-Chorus]
-ทุกข้อความยังไม่ลบ
-ทุกคำตอบยังไม่จบ
-ความทรงจำยังคงครบ
-แม้ใจเจ็บแทบทบ
-
-[Chorus]
-${hook}
-เรียกชื่อเธอซ้ำอีกครั้ง
-${hook}
-แม้ไม่มีเธอข้าง ๆ
-
-[Verse 2]
-เวลาหมุนไปแต่ใจไม่หมุน
-ความคิดยังวนไม่สิ้นสุด
-แสงไฟในเมืองยังจุด
-แต่ใจฉันยังหยุด
-
-[Bridge]
-ถ้าวันหนึ่งเราได้เจอ
-ฉันจะไม่ถามเธอ
-ปล่อยให้ความรู้สึกเพ้อ
-แล้วจบลงเสมอ
-
-[Final Chorus]
-${hook}
-ดังขึ้นกว่าเดิมสองเท่า
-${hook}
-ให้โลกได้รู้เรื่องเรา`
-}
-
-function upgradeLyrics(){
-
-let lyrics=document.getElementById("lyrics").value
-
-if(!lyrics.trim()){
-document.getElementById("lyrics").value=generateFreshSong()
-return
-}
-
-let lines=lyrics.split("\n")
-let processed=applySectionPattern(lines)
-
-let emotion=document.getElementById("emotion").value || "ความรู้สึก"
-let hookLine=emotion+" ที่ยังเรียกชื่อเธอ"
-
-processed.push("\n[Algorithm Boost Hook]")
-processed.push(hookLine)
-processed.push(hookLine)
-
-document.getElementById("lyrics").value=processed.join("\n")
-}
-
-function buildOutput(artistType){
-
-let emotion=document.getElementById("emotion").value
-let genre=document.getElementById("genre").value
-let title=generateTitle(emotion)
-let scores=generateScores()
-
-drawChart(scores)
-
-return `
-=== 🎼 TITLE ===
-${title}
-
-=== 🎤 Artist Type ===
-${artistType}
-
-=== 🎧 Genre ===
-${genre}
-
-=== 📊 SCORES ===
-Hook: ${scores.hook}%
-Emotion: ${scores.emotion}%
-Viral: ${scores.viral}%
-Originality: ${scores.original}%
-
-=== 🎼 SUNO PROMPT ===
-Artist: ${artistType}
-Genre: ${genre}
-Mood: ${emotion || "Emotional Pop"}
-Structure:
-[Verse 1]
-[Pre-Chorus]
-[Chorus x2]
-[Verse 2]
-[Bridge]
-[Final Chorus Lift]
-`
-}
-
-function runSystem(){
-let output=buildOutput("Auto Artist")
-document.getElementById("output").innerText=output
-}
-
-function generateMulti(){
-let types=[
-"Thai Male Artist",
-"Thai Female Artist",
-"International Male Artist",
-"International Female Artist"
-]
-let result=""
-types.forEach(t=>{
-result+="\n====================\n"
-result+=buildOutput(t)
-})
-document.getElementById("output").innerText=result
-}
-
-function randomAll(){
-const emotions=["คลั่งรัก","midnight drive","toxic love","summer crush"]
-document.getElementById("emotion").value=randomItem(emotions)
-document.getElementById("artist").value=""
-document.getElementById("prototypeSong").value=""
-runSystem()
-}
-
-</script>
-
-</body>
-</html>
+<button
