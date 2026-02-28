@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DNA Song Generator PRO v2</title>
+<title>DNA Song Generator – Reference Engine</title>
 
 <style>
 body{
@@ -12,7 +12,7 @@ body{
   color:white;
   padding:20px;
 }
-input,select,button,textarea{
+input,button,textarea{
   width:100%;
   padding:10px;
   margin:8px 0;
@@ -26,7 +26,7 @@ button{
   cursor:pointer;
 }
 textarea{
-  height:220px;
+  height:240px;
   background:#1b1b25;
   color:#00ffcc;
 }
@@ -40,17 +40,11 @@ textarea{
 </head>
 <body>
 
-<h1>🎵 DNA Song Generator – Stable V1 PRO v2</h1>
+<h1>🎵 DNA Song Generator – Reference Mode</h1>
 
-<input id="theme" placeholder="Song Theme (e.g. Lost Love, Party Night, Freedom)">
-<select id="mood">
-<option>Emotional Anthem</option>
-<option>Disco Energetic</option>
-<option>Romantic Groove</option>
-<option>Dark Synth Pop</option>
-</select>
+<input id="reference" placeholder="Singer / Song Reference (e.g. BeeGees - Stayin Alive)">
 
-<button onclick="generateSong()">Generate 4-5 Min Narrative Song</button>
+<button onclick="generateSong()">Generate Narrative Song (4-5 min)</button>
 
 <div class="section">
 <h3>Song Title</h3>
@@ -58,7 +52,7 @@ textarea{
 </div>
 
 <div class="section">
-<h3>Suno Style Prompt</h3>
+<h3>Suno Prompt (Production Ready)</h3>
 <textarea id="style"></textarea>
 </div>
 
@@ -75,69 +69,65 @@ function cap(str){
 
 function generateSong(){
 
-  const theme = document.getElementById("theme").value || "Midnight Fire";
-  const mood = document.getElementById("mood").value;
-
-  const title = cap(theme);
-
-  // STORY ARC
+  const ref = document.getElementById("reference").value || "Classic Pop Anthem";
+  const title = "Echoes of the Night";
 
   const verse1 =
-`I remember how it started slow
-City lights and a heart of gold
-We were young, we were fearless then
-Chasing dreams we couldn't hold
-Every whisper felt so real
-Every touch electric steel
-We believed in endless skies
-Burning bright in our own light`;
+`I was walking through a restless city
+Heartbeat sync with neon light
+Every shadow moving with me
+Every dream just out of sight
+Rhythm in my blood keeps rising
+Can't slow down, no compromise
+Feel the tension in the silence
+Feel it building in my mind`;
 
   const pre =
-`But the night was calling louder
-Feel the rhythm taking over
-No more hiding in the shadows
-Let it rise, let it rise`;
+`Every step is getting closer
+Every breath a spark of fire
+Can't deny the heat inside me
+Taking me higher`;
 
   const chorus =
 `${title}
-We are rising through the flame
+We are alive inside the sound
 ${title}
-Nothing's ever gonna be the same
-Higher, higher we ignite
-Shining in the darkest night`;
+Feel the rhythm all around
+Moving faster through the flame
+Nothing's ever gonna be the same`;
 
   const verse2 =
-`Now the story's turning fast
-Broken mirrors from the past
-Every scar became a spark
-Lighting up the deepest dark
-We were falling just to learn
-Every loss became a burn
-From the ashes we arise
-Stronger now before your eyes`;
+`Now the pressure's turning sweeter
+Like a pulse beneath my skin
+Every moment getting deeper
+Let the revolution in
+We don't run from broken echoes
+We don't fade into the grey
+We ignite the silent corners
+Turn the darkness into day`;
 
   const bridge =
-`When the world goes silent
-And the lights fade down
-Hear the echo of our heartbeat sound
-We are more than moments
-More than yesterday
-We are fire that won't fade away`;
+`When the world stands still
+And the music drops low
+Hear the whisper of the undertow
+We rise again
+Stronger than before
+Knocking at the hidden door`;
 
   const fullLyrics =
 
-`[Intro – Ambient Build 8 Bars]
+`[Intro – Groove Build 8 Bars]
 
-[Verse 1 – Beginning]
+[Verse 1]
 ${verse1}
 
-[Pre-Chorus – Rising Tension]
+[Pre-Chorus]
 ${pre}
 
-[Chorus – Emotional Peak]
+[Chorus]
 ${chorus}
 
-[Verse 2 – Conflict & Growth]
+[Verse 2]
 ${verse2}
 
 [Pre-Chorus]
@@ -146,28 +136,29 @@ ${pre}
 [Chorus x2]
 ${chorus}
 
-[Bridge – Dynamic Drop / Half-Time Feel]
+[Bridge – Half-Time / Dynamic Shift]
 ${bridge}
 
-[Final Chorus – Big Lift + Adlibs]
+[Final Chorus – Big Lift + Harmonies]
 ${chorus}
-(Extended harmonies & vocal layers fade out)`;
+(Extended vocal layers & adlibs fade out)`;
 
   const stylePrompt =
-`Mood: ${mood}
-Theme: ${theme}
+`Singer/Song Reference: ${ref}
+
 Length Target: 4-5 Minutes
-Narrative Arc: Beginning → Conflict → Rise → Resolution
-Structure: Intro – V1 – Pre – Chorus – V2 – Pre – Chorus x2 – Bridge – Final Chorus
-Production:
-• Wide stereo harmonies
-• Dynamic chorus expansion
-• Layered background vocals
-• Sub bass control
-• Clean vocal front mix
-• Large cinematic soundstage
+Narrative Structure:
+Intro – Verse 1 – Pre-Chorus – Chorus – Verse 2 – Pre-Chorus – Chorus x2 – Bridge – Final Chorus
+
+Production Direction:
+• Strong melodic hook
+• Dynamic chorus lift
+• Layered harmonies
+• Wide stereo imaging
+• Deep controlled bass
+• Cinematic build
 • Headphone & Speaker optimized
-World Production Studio Quality`;
+World-Class Studio Level`;
 
   document.getElementById("title").value = title;
   document.getElementById("style").value = stylePrompt;
