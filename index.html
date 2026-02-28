@@ -1,272 +1,142 @@
-<!DOCTYPE html>
-<html lang="th">
+<!DOCTYPE html><html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Digital Song Factory V3.0 STABLE</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Suno Stable V3.3 – Hook Reinforcement Engine</title>
 <style>
-body{font-family:Arial;background:#0f0f0f;color:#eee;padding:20px}
-h1{color:#00ffc3}
-.section{border:1px solid #333;padding:15px;margin-bottom:20px;border-radius:10px}
-input,textarea,select,button{width:100%;padding:8px;margin-top:6px;margin-bottom:10px;border-radius:6px;border:none}
-textarea{height:220px}
-button{background:#00ffc3;color:#000;font-weight:bold;cursor:pointer}
-button:hover{opacity:.85}
-.output{background:#1b1b1b;padding:15px;border-radius:8px;white-space:pre-wrap}
-.row{display:flex;gap:10px}
-.small{font-size:12px;color:#aaa}
-canvas{background:#111;border-radius:10px;margin-top:10px}
+body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#fff;margin:0;padding:24px}
+.container{max-width:1100px;margin:auto;background:#1e293b;padding:28px;border-radius:16px;box-shadow:0 25px 50px rgba(0,0,0,.5)}
+h1{margin-top:0;font-size:22px}
+label{font-size:13px;opacity:.8}
+input,textarea,select{width:100%;padding:10px;margin:6px 0 14px 0;border-radius:8px;border:none;background:#334155;color:#fff}
+textarea{min-height:140px;resize:vertical}
+button{padding:10px 14px;margin:6px 6px 6px 0;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+.primary{background:#3b82f6;color:#fff}
+.dna{background:#8b5cf6;color:#fff}
+.success{background:#10b981;color:#fff}
+.warning{background:#f59e0b;color:#000}
+.output{white-space:pre-wrap;background:#0b1220;padding:18px;border-radius:12px;margin-top:18px;font-size:14px;line-height:1.7}
 </style>
 </head>
 <body>
+<div class="container">
+<h1>Suno Stable V3.3 – Hook Reinforcement Engine</h1><label>Song Title</label> <input id="title" placeholder="Leave blank for AI auto title" />
 
-<h1>🎵 Digital Song Factory V3.0 STABLE</h1>
+<label>Artist</label> <input id="artist" placeholder="Leave blank or lock artist" />
 
-<div class="section">
-<h3>INPUT ZONE</h3>
+<label>Mood / Emotion</label> <input id="mood" placeholder="Romantic / Dark / Sad / Energetic" />
 
-<label>Prototype Artist</label>
-<input type="text" id="artist">
+<label>Rhyme Pattern</label> <select id="pattern">
 
-<label>Prototype Song Title</label>
-<input type="text" id="prototypeSong">
+<option value="AABB">AABB</option>
+<option value="ABAB">ABAB</option>
+<option value="AAAA">AAAA</option>
+</select><label>Hook Intensity</label> <select id="hookLevel">
 
-<label>Creative Emotion</label>
-<input type="text" id="emotion">
+<option value="1">Normal</option>
+<option value="2">Strong</option>
+<option value="3">Viral Mode</option>
+</select><label>Original Lyrics (DNA Source)</label>
 
-<label>Original Lyrics</label>
-<textarea id="lyrics"></textarea>
+<textarea id="lyrics" placeholder="Leave blank for full AI song"></textarea><div>
+<button class="primary" onclick="buildSong()">Generate Song</button>
+<button class="dna" onclick="dnaFullRewrite()">Full Song From DNA</button>
+<button class="success" onclick="upgradeLyrics()">Upgrade Lyrics</button>
+<button class="warning" onclick="rewriteSong()">Algorithm-Proof Rewrite</button>
+</div><div class="output" id="output"></div>
+</div><script>
+let lockedArtist=null;
 
-<button onclick="upgradeLyrics()">✨ AI Rewrite / Generate</button>
+const Utils={
+pick:a=>a[Math.floor(Math.random()*a.length)],
+randomTitle(){
+const a=["Midnight","Neon","Fading","Golden","Velvet","Broken","Silent","Crystal"];
+const b=["Memory","Dream","Echo","Fire","Rain","Shadow","Light","Sky"];
+return this.pick(a)+" "+this.pick(b);
+},
+randomMood(){return this.pick(["Romantic","Dark Pop","Melancholic","Emotional Ballad","Summer Pop"])}
+};
 
-<h4>Genre</h4>
-<select id="genre">
-<option>Auto</option>
-<option>Thai Pop</option>
-<option>T-POP Dance</option>
-<option>Indie Pop</option>
-<option>R&B</option>
-<option>EDM Festival</option>
-<option>Acoustic Ballad</option>
-<option>Trap Pop</option>
-</select>
+const AdvancedRhyme={
+patterns:{AABB:["a","a","b","b"],ABAB:["a","b","a","b"],AAAA:["a","a","a","a"]},
+endings:{
+a:["หัวใจที่สั่นไหว","คืนวันที่ห่างไกล","ความฝันบทใหม่","เส้นทางที่ก้าวไป"],
+b:["คืนเหงาที่เดียวดาย","คำถามที่มากมาย","ภาพเดิมไม่จางหาย","เสียงเรียกจากข้างใน"]
+},
+compose(seed,type){
+const pattern=this.patterns[type]||this.patterns.AABB;
+return pattern.map(p=>seed+" "+Utils.pick(this.endings[p])).join("\n");
+}
+};
 
-<h4>Structure Template</h4>
-<select id="structureTemplate">
-<option value="POP">Pop Standard</option>
-<option value="KPOP">K-POP Dynamic</option>
-<option value="EDM">Festival EDM</option>
-<option value="BALLAD">Acoustic Ballad</option>
-<option value="INDIE">Indie Storytelling</option>
-<option value="TRAP">Trap Pop</option>
-</select>
-
-<label><input type="checkbox" id="duetMode"> Duet Mode</label>
-<label><input type="checkbox" id="albumMode"> Album Mode (5 Songs)</label>
-
-<h4>Style Intensity</h4>
-<select id="intensity">
-<option value="1">1 Soft</option>
-<option value="2">2 Medium</option>
-<option value="3">3 Strong</option>
-<option value="4">4 Extreme</option>
-</select>
-
-<h4>Vocal Range</h4>
-<select id="vocalRange">
-<option>Low</option>
-<option>Mid</option>
-<option>High</option>
-</select>
-
-<h4>BPM</h4>
-<input type="number" id="bpm" placeholder="Auto">
-
-<h4>Key</h4>
-<select id="key">
-<option value="AUTO">Auto</option>
-<option>C Major</option>
-<option>G Major</option>
-<option>A Minor</option>
-<option>E Minor</option>
-</select>
-
-<h4>Arrangement</h4>
-<select id="arrange">
-<option value="1">Minimal</option>
-<option value="2">Standard</option>
-<option value="3">Rich Layer</option>
-<option value="4">Festival</option>
-</select>
-
-<h4>Melody</h4>
-<select id="melody">
-<option>Auto</option>
-<option>Stepwise Emotional</option>
-<option>Repetitive Hook</option>
-<option>Anthemic Lift</option>
-</select>
-
-<h4>Chord</h4>
-<select id="chord">
-<option>Auto</option>
-<option>I–V–vi–IV</option>
-<option>vi–IV–I–V</option>
-<option>i–VI–III–VII</option>
-</select>
-
-<h4>Drum</h4>
-<select id="drum">
-<option>Pop Groove</option>
-<option>Trap Hi-Hat</option>
-<option>EDM 4-on-Floor</option>
-<option>Acoustic Soft</option>
-</select>
-
-<h4>Instrument</h4>
-<select id="instrument">
-<option>Piano + Strings</option>
-<option>Synth Pop</option>
-<option>Acoustic Band</option>
-<option>Festival EDM</option>
-<option>Trap 808</option>
-</select>
-
-<h4>Commercial Mode</h4>
-<select id="commercial">
-<option>Radio Edit</option>
-<option>Streaming Version</option>
-<option>Extended Mix</option>
-</select>
-
-<h4>Mix Profile</h4>
-<select id="mix">
-<option>Warm Analog</option>
-<option>Bright Pop</option>
-<option>Club Punchy</option>
-<option>Wide Cinematic</option>
-</select>
-
-<h4>Mastering</h4>
-<select id="mastering">
-<option>Clean Digital</option>
-<option>Analog Tape</option>
-<option>Loud & Modern</option>
-<option>Dynamic Audiophile</option>
-</select>
-
-<h4>Language Mode</h4>
-<select id="language">
-<option>Thai</option>
-<option>English</option>
-<option>Thai + English</option>
-<option>Global Mix</option>
-</select>
-
-<div class="row">
-<button onclick="runSystem()">Generate</button>
-<button onclick="generateMulti()">Generate 4 Artists</button>
-</div>
-
-</div>
-
-<div class="section">
-<h3>OUTPUT</h3>
-<div id="output" class="output"></div>
-</div>
-
-<script>
-
-function randomItem(arr){return arr[Math.floor(Math.random()*arr.length)]}
-
-function autoBPM(){
-let g=document.getElementById("genre").value
-if(g.includes("EDM")) return 128
-if(g.includes("Dance")) return 120
-if(g.includes("Ballad")) return 72
-return 100
+function extractDNA(text){
+const words=text.split(/\s+/).filter(w=>w.length>3);
+return words.length?Utils.pick(words):"ความทรงจำ";
 }
 
-function autoKey(){
-let e=document.getElementById("emotion").value
-if(e.includes("เศร้า")) return "A Minor"
-return "C Major"
+function buildHeader(title,artist,mood,pattern,hook){
+return `Title: ${title}\nArtist: ${artist}\nMood: ${mood}\nPattern: ${pattern}\nHook Level: ${hook}\n\n`;
 }
 
-function autoChord(){
-let k=document.getElementById("key").value
-if(k==="AUTO") k=autoKey()
-if(k.includes("Major")) return "I–V–vi–IV"
-return "i–VI–III–VII"
+function hookReinforce(line,level){
+if(level==="1") return line;
+if(level==="2") return line+"\n"+line;
+if(level==="3") return line+"\n"+line+"\n"+line;
 }
 
-function generateScores(){
-return{
-hook:Math.floor(Math.random()*20)+75,
-emotion:Math.floor(Math.random()*20)+70,
-viral:Math.floor(Math.random()*20)+65
-}
-}
+function fullStructure(seed,mood,pattern,hookLevel){
+const hookBase=AdvancedRhyme.compose("หัวใจยังเรียกหา "+seed,pattern);
+const reinforcedHook=hookReinforce(hookBase,hookLevel);
 
-function calculateHit(scores){
-let base=(scores.hook+scores.viral)/2
-return{
-streaming:Math.min(base+5,100),
-radio:Math.min(base+2,100),
-viral:Math.min(base+8,100),
-overall:Math.min(base+5,100)
-}
+return `[Intro]\n${seed}...\n\n`+
+`[Verse 1]\n${AdvancedRhyme.compose("เมื่อ "+seed,pattern)}\n\n`+
+`[Pre-Chorus]\n${AdvancedRhyme.compose("ทุกความรู้สึก "+mood,pattern)}\n\n`+
+`[Chorus]\n${reinforcedHook}\n\n`+
+`[Verse 2]\n${AdvancedRhyme.compose("ในวันที่ไม่มี "+seed,pattern)}\n\n`+
+`[Final Chorus]\n${reinforcedHook}`;
 }
 
-function runSystem(){
+function buildSong(){
+const title=document.getElementById("title").value||Utils.randomTitle();
+const artist=lockedArtist||document.getElementById("artist").value||"AI Generated Artist";
+const mood=document.getElementById("mood").value||Utils.randomMood();
+const pattern=document.getElementById("pattern").value;
+const hookLevel=document.getElementById("hookLevel").value;
+const original=document.getElementById("lyrics").value.trim();
 
-let bpm=document.getElementById("bpm").value || autoBPM()
-let key=document.getElementById("key").value
-if(key==="AUTO") key=autoKey()
+const seed=original||("ในคืนที่ "+mood);
+const lyrics=fullStructure(seed,mood,pattern,hookLevel);
 
-let chord=document.getElementById("chord").value
-if(chord==="Auto") chord=autoChord()
-
-let scores=generateScores()
-let hit=calculateHit(scores)
-
-let output=`
-=== AI RECORD LABEL REPORT ===
-
-BPM: ${bpm}
-Key: ${key}
-Chord: ${chord}
-Drum: ${document.getElementById("drum").value}
-Instrument: ${document.getElementById("instrument").value}
-Mix: ${document.getElementById("mix").value}
-Mastering: ${document.getElementById("mastering").value}
-Language: ${document.getElementById("language").value}
-
-=== HIT PROBABILITY ===
-Streaming: ${Math.floor(hit.streaming)}%
-Radio: ${Math.floor(hit.radio)}%
-Viral: ${Math.floor(hit.viral)}%
-Overall: ${Math.floor(hit.overall)}%
-`
-
-document.getElementById("output").innerText=output
+document.getElementById("output").innerText=
+buildHeader(title,artist,mood,pattern,hookLevel)+lyrics;
 }
 
-function generateMulti(){
-let types=["Thai Male","Thai Female","Global Male","Global Female"]
-let result=""
-types.forEach(t=>{
-result+="\n--- "+t+" ---\n"
-runSystem()
-result+=document.getElementById("output").innerText
-})
-document.getElementById("output").innerText=result
+function dnaFullRewrite(){
+const original=document.getElementById("lyrics").value.trim();
+const mood=document.getElementById("mood").value||Utils.randomMood();
+const pattern=document.getElementById("pattern").value;
+const hookLevel=document.getElementById("hookLevel").value;
+const title=document.getElementById("title").value||Utils.randomTitle();
+const artist=lockedArtist||document.getElementById("artist").value||"AI Generated Artist";
+
+const seed=extractDNA(original||mood);
+const song=fullStructure(seed,mood,pattern,hookLevel);
+
+document.getElementById("output").innerText=
+buildHeader(title,artist,mood,pattern,hookLevel)+song;
 }
 
 function upgradeLyrics(){
-let e=document.getElementById("emotion").value||"ความรู้สึก"
-document.getElementById("lyrics").value="[Verse]\nRewrite based on "+e+"\n[Chorus]\n"+e+" ที่ไม่จางหาย"
+const out=document.getElementById("output");
+out.innerText=out.innerText.replace(/รัก/g,"หลงรัก").replace(/ใจ/g,"หัวใจ");
 }
 
-</script>
-</body>
+function rewriteSong(){
+const out=document.getElementById("output");
+const lines=out.innerText.split("\n");
+out.innerText=lines.map(l=>
+l.startsWith("Title:")||l.startsWith("Artist:")||l.startsWith("Mood:")||l.startsWith("Pattern:")||l.startsWith("Hook Level:")?l:"ฉันยังจำ "+l
+).join("\n");
+}
+</script></body>
 </html>
