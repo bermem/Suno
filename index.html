@@ -2,131 +2,130 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Suno Stable V3.4 – No Rhyme Mode</title>
+<title>Suno Stable V1.7.1 PRO</title>
 <style>
-body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#fff;margin:0;padding:24px}
-.container{max-width:1100px;margin:auto;background:#1e293b;padding:28px;border-radius:16px;box-shadow:0 25px 50px rgba(0,0,0,.5)}
-h1{margin-top:0;font-size:22px}
-label{font-size:13px;opacity:.8}
-input,textarea,select{width:100%;padding:10px;margin:6px 0 14px 0;border-radius:8px;border:none;background:#334155;color:#fff}
-textarea{min-height:140px;resize:vertical}
-button{padding:10px 14px;margin:6px 6px 6px 0;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+body{font-family:Arial;background:#0f172a;color:#fff;margin:0;padding:20px}
+.container{max-width:950px;margin:auto;background:#1e293b;padding:22px;border-radius:14px;box-shadow:0 15px 35px rgba(0,0,0,.45)}
+h1{margin-top:0}
+label{font-size:13px;opacity:.85}
+input,textarea,select{width:100%;padding:10px;margin:8px 0;border-radius:8px;border:none;background:#334155;color:#fff}
+button{padding:10px 16px;margin:6px 6px 6px 0;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
 .primary{background:#3b82f6;color:#fff}
-.dna{background:#8b5cf6;color:#fff}
 .success{background:#10b981;color:#fff}
 .warning{background:#f59e0b;color:#000}
-.output{white-space:pre-wrap;background:#0b1220;padding:18px;border-radius:12px;margin-top:18px;font-size:14px;line-height:1.7}
+.pro{background:#8b5cf6;color:#fff}
+.output{white-space:pre-wrap;background:#0b1220;padding:16px;border-radius:10px;margin-top:16px;line-height:1.6}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>Suno Stable V3.4 – Clean Lyric Engine (No Rhyme)</h1><label>Song Title</label> <input id="title" placeholder="Leave blank for AI auto title" />
+<h1>Suno Stable V1.7.1 PRO</h1><label>Song Title</label> <input id="title" placeholder="Leave blank for AI" />
 
-<label>Artist</label> <input id="artist" placeholder="Leave blank or lock artist" />
+<label>Artist</label> <input id="artist" placeholder="Artist name" />
 
-<label>Mood / Emotion</label> <input id="mood" placeholder="Romantic / Dark / Sad / Energetic" />
+<label>Mood</label> <input id="mood" placeholder="Romantic / Dark / Summer" />
 
-<label>Hook Intensity</label> <select id="hookLevel">
+<label>Rhyme Pattern</label> <select id="pattern">
 
-<option value="1">Normal</option>
-<option value="2">Strong</option>
-<option value="3">Viral Mode</option>
-</select><label>Original Lyrics (DNA Source)</label>
+<option value="AABB">AABB</option>
+<option value="ABAB">ABAB</option>
+<option value="AAAA">AAAA</option>
+</select><label>Structure Mode</label> <select id="structure">
 
-<textarea id="lyrics" placeholder="Leave blank for full AI song"></textarea><div>
+<option value="basic">Basic (4 lines)</option>
+<option value="pro">PRO (Verse / Chorus)</option>
+</select><label>Original Lyrics (optional)</label>
+
+<textarea id="lyrics" rows="6" placeholder="Leave blank to auto generate"></textarea><div>
 <button class="primary" onclick="buildSong()">Generate Song</button>
-<button class="dna" onclick="dnaFullRewrite()">Full Song From DNA</button>
-<button class="success" onclick="upgradeLyrics()">Upgrade Lyrics</button>
-<button class="warning" onclick="rewriteSong()">Algorithm-Proof Rewrite</button>
+<button class="success" onclick="upgradeLyrics()">AI Upgrade Lyrics</button>
+<button class="warning" onclick="rewriteSong()">Rewrite Full Song</button>
+<button class="pro" onclick="regenerateNewSong()">Regenerate New Version</button>
 </div><div class="output" id="output"></div>
 </div><script>
-let lockedArtist=null;
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
-const Utils={
-pick:a=>a[Math.floor(Math.random()*a.length)],
-randomTitle(){
-const a=["Midnight","Neon","Fading","Golden","Velvet","Broken","Silent","Crystal"];
-const b=["Memory","Dream","Echo","Fire","Rain","Shadow","Light","Sky"];
-return this.pick(a)+" "+this.pick(b);
-},
-randomMood(){return this.pick(["Romantic","Dark Pop","Melancholic","Emotional Ballad","Summer Pop"])}
-};
-
-function extractDNA(text){
-const words=text.split(/\s+/).filter(w=>w.length>3);
-return words.length?Utils.pick(words):"ความทรงจำ";
+function randomTitle(){
+const a=["Midnight","Neon","Silent","Golden","Lonely","Broken"]
+const b=["Dream","Light","Echo","Fire","Rain","Memory"]
+return pick(a)+" "+pick(b)
 }
 
-function hookReinforce(text,level){
-if(level==="1") return text;
-if(level==="2") return text+"\n"+text;
-if(level==="3") return text+"\n"+text+"\n"+text;
+function randomMood(){
+return pick(["Romantic","Dark","Melancholic","Summer Pop","Emotional"])
 }
 
-function buildHeader(title,artist,mood,hook){
-return `Title: ${title}\nArtist: ${artist}\nMood: ${mood}\nHook Level: ${hook}\n\n`;
+function getPattern(type){
+const patterns={
+AABB:["a","a","b","b"],
+ABAB:["a","b","a","b"],
+AAAA:["a","a","a","a"]
+}
+return patterns[type]||patterns.AABB
 }
 
-function naturalLine(seed,mood){
-const phrases=[
-`เมื่อ ${seed} ยังอยู่ในใจ`,
-`คืนหนึ่งที่เต็มไปด้วย ${mood}`,
-`ภาพความทรงจำไม่เคยจาง`,
-`เสียงหัวใจยังเรียกหาเธอ`,
-`ฉันยังเดินอยู่บนเส้นทางเดิม`
-];
-return Utils.pick(phrases);
+function smartRhyme(seed,patternType){
+const endings={
+a:["ใจ","ไกล","ใหม่","ไป","ใส"],
+b:["คืน","ฝืน","ยืน","ชื่น","ตื่น"]
+}
+const pattern=getPattern(patternType)
+return pattern.map(p=>seed+" "+pick(endings[p])).join("\n")
 }
 
-function fullStructure(seed,mood,hookLevel){
-const verse1=`${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}`;
-const pre=`${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}`;
-const chorusBase=`หัวใจยังเรียกหา ${seed}`;
-const chorus=hookReinforce(chorusBase,hookLevel);
-const verse2=`${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}`;
-
-return `[Verse 1]\n${verse1}\n\n[Pre-Chorus]\n${pre}\n\n[Chorus]\n${chorus}\n\n[Verse 2]\n${verse2}\n\n[Final Chorus]\n${chorus}`;
+function buildStructured(seed,pattern){
+const verse=smartRhyme(seed,pattern)
+const chorus=smartRhyme("หัวใจยังเรียกหา "+seed,pattern)
+return "[Verse]\n"+verse+"\n\n[Chorus]\n"+chorus
 }
 
 function buildSong(){
-const title=document.getElementById("title").value||Utils.randomTitle();
-const artist=document.getElementById("artist").value||"AI Generated Artist";
-const mood=document.getElementById("mood").value||Utils.randomMood();
-const hookLevel=document.getElementById("hookLevel").value;
-const original=document.getElementById("lyrics").value.trim();
+const title=document.getElementById("title").value||randomTitle()
+const artist=document.getElementById("artist").value||"AI Generated Artist"
+const mood=document.getElementById("mood").value||randomMood()
+const pattern=document.getElementById("pattern").value
+const structure=document.getElementById("structure").value
+const original=document.getElementById("lyrics").value.trim()
 
-const seed=original||mood;
-const lyrics=fullStructure(seed,mood,hookLevel);
+const seed=original||("ในคืนที่ "+mood)
 
-document.getElementById("output").innerText=
-buildHeader(title,artist,mood,hookLevel)+lyrics;
+let lyrics=""
+if(structure==="pro"){
+lyrics=buildStructured(seed,pattern)
+}else{
+lyrics=smartRhyme(seed,pattern)
 }
 
-function dnaFullRewrite(){
-const original=document.getElementById("lyrics").value.trim();
-const mood=document.getElementById("mood").value||Utils.randomMood();
-const hookLevel=document.getElementById("hookLevel").value;
-const title=document.getElementById("title").value||Utils.randomTitle();
-const artist=document.getElementById("artist").value||"AI Generated Artist";
-
-const seed=extractDNA(original||mood);
-const song=fullStructure(seed,mood,hookLevel);
-
 document.getElementById("output").innerText=
-buildHeader(title,artist,mood,hookLevel)+song;
+"Title: "+title+"\n"+
+"Artist: "+artist+"\n"+
+"Mood: "+mood+"\n"+
+"Pattern: "+pattern+"\n"+
+"Structure: "+structure+"\n\n"+
+lyrics
+}
+
+function regenerateNewSong(){
+document.getElementById("lyrics").value=""
+buildSong()
 }
 
 function upgradeLyrics(){
-const out=document.getElementById("output");
-out.innerText=out.innerText.replace(/รัก/g,"หลงรัก").replace(/ใจ/g,"หัวใจ");
+const out=document.getElementById("output")
+out.innerText=out.innerText
+.replace(/รัก/g,"หลงรัก")
+.replace(/ใจ/g,"หัวใจ")
+.replace(/คืน/g,"ค่ำคืน")
 }
 
 function rewriteSong(){
-const out=document.getElementById("output");
-const lines=out.innerText.split("\n");
+const out=document.getElementById("output")
+const lines=out.innerText.split("\n")
 out.innerText=lines.map(l=>
-l.startsWith("Title:")||l.startsWith("Artist:")||l.startsWith("Mood:")||l.startsWith("Hook Level:")?l:"ฉันยังจำ "+l
-).join("\n");
+l.startsWith("Title:")||l.startsWith("Artist:")||l.startsWith("Mood:")||l.startsWith("Pattern:")||l.startsWith("Structure:")
+?l
+:"ฉันยังจำ "+l
+).join("\n")
 }
 </script></body>
 </html>
