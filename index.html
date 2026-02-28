@@ -1,200 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>V15 DNA Song Generator</title>
+<title>Digital Song Factory V1.4 STABLE</title>
 <style>
-body{background:#0a0f18;color:#00ffd0;font-family:monospace;padding:20px}
-.container{max-width:1200px;margin:auto}
-textarea,select,button{
-width:100%;
-margin-top:10px;
-padding:10px;
-border-radius:6px;
-border:none;
-font-family:monospace
-}
-textarea{background:#111;color:#fff;height:180px}
-select{background:#111;color:#00ffd0}
-button{background:#00ffd0;color:#000;font-weight:bold;cursor:pointer}
-.output{
-background:#111;
-color:#fff;
-margin-top:20px;
-padding:15px;
-border-radius:6px;
-white-space:pre-wrap
-}
-.section{margin-top:30px}
-.score{font-size:20px;color:#00ff88}
+body{font-family:Arial;background:#0f0f0f;color:#eee;padding:20px}
+h1{color:#00ffc3}
+.section{border:1px solid #333;padding:15px;margin-bottom:20px;border-radius:10px}
+input,textarea,select,button{width:100%;padding:8px;margin-top:6px;margin-bottom:10px;border-radius:6px;border:none}
+textarea{height:120px}
+button{background:#00ffc3;color:#000;font-weight:bold;cursor:pointer}
+button:hover{opacity:.85}
+.output{background:#1b1b1b;padding:15px;border-radius:8px;white-space:pre-wrap}
+.row{display:flex;gap:10px}
+.small{font-size:12px;color:#aaa}
+canvas{background:#111;border-radius:10px;margin-top:10px}
 </style>
 </head>
 <body>
 
-<div class="container">
+<h1>🎵 Digital Song Factory V1.4 (STABLE)</h1>
 
-<h1>🎛 V15 – DNA → New Song Generator</h1>
+<div class="section">
+<h3>INPUT ZONE</h3>
 
-<label>Artist Style</label>
-<select id="style">
-<option value="80s">80s Synth Pop Anthem</option>
-<option value="90sTH">90s Thai Emotional Ballad</option>
-<option value="ModernPop">Modern Pop Stadium</option>
-<option value="ElectroPop">Electro Pop Diva</option>
+<label>Prototype Artist</label>
+<input type="text" id="artist">
+
+<label>Prototype Song Title</label>
+<input type="text" id="prototypeSong">
+
+<label>Creative Emotion / Intent</label>
+<input type="text" id="emotion">
+
+<label>Original Lyrics</label>
+<textarea id="lyrics"></textarea>
+
+<h4>🎼 Genre Menu</h4>
+<select id="genre">
+<option>Auto</option>
+<option>Thai Pop</option>
+<option>T-POP Dance</option>
+<option>Indie Pop</option>
+<option>R&B</option>
+<option>EDM Festival</option>
+<option>Acoustic Ballad</option>
+<option>Trap Pop</option>
 </select>
 
-<textarea id="inputLyrics" placeholder="Paste your original lyrics here..."></textarea>
+<label><input type="checkbox" id="lockGenre"> Lock Genre</label>
 
-<button onclick="generate()">🚀 Analyze → Generate New Song</button>
+<div class="row">
+<button onclick="runSystem()">🚀 Generate 1 Version</button>
+<button onclick="generateMulti()">🎤 Generate 4 Versions</button>
+</div>
 
-<div class="section">
-<h3>🧬 DNA Report</h3>
-<div id="dnaOut" class="output"></div>
+<button onclick="randomAll()">🔀 Random All</button>
+
+<p class="small">* AI จะตั้งชื่อเพลงใหม่ให้อัตโนมัติ</p>
 </div>
 
 <div class="section">
-<h3>🎵 New Generated Song</h3>
-<div id="songOut" class="output"></div>
+<h3>OUTPUT</h3>
+<div id="output" class="output">รอการประมวลผล...</div>
 </div>
 
 <div class="section">
-<h3>🔥 Hit Score</h3>
-<div id="scoreOut" class="output"></div>
-</div>
-
-<div class="section">
-<h3>🎛 Suno Prompt</h3>
-<div id="promptOut" class="output"></div>
-</div>
-
+<h3>📊 Hit Dashboard</h3>
+<canvas id="chart" width="400" height="200"></canvas>
 </div>
 
 <script>
 
-function analyzeDNA(text){
-let lines=text.split("\n").filter(l=>l.trim()!="");
-let words=text.split(/\s+/);
-let repetition=lines.length-new Set(lines).size;
-let avgLength=Math.round(lines.reduce((a,b)=>a+b.length,0)/lines.length||0);
+function randomItem(arr){
+return arr[Math.floor(Math.random()*arr.length)]
+}
 
+function generateTitle(emotion){
+if(emotion) return emotion.split(" ")[0]+" ที่ไม่จางหาย"
+const words=["Midnight Echo","คืนที่ไม่ลืม","Heartbeat Signal","Shadow Memory"]
+return randomItem(words)
+}
+
+function generateScores(){
 return {
-lines:lines.length,
-words:words.length,
-repetition:repetition,
-avgLength:avgLength
-};
+hook:Math.floor(Math.random()*20)+75,
+emotion:Math.floor(Math.random()*20)+70,
+viral:Math.floor(Math.random()*20)+65,
+original:Math.floor(Math.random()*15)+80
+}
 }
 
-function generateNewSong(dna,style){
+function drawChart(scores){
+let canvas=document.getElementById("chart")
+let ctx=canvas.getContext("2d")
+ctx.clearRect(0,0,400,200)
 
-let hookPhrase = dna.repetition>1 ? 
-"Forever in the fire" : 
-"Higher than the night";
+let values=[scores.hook,scores.emotion,scores.viral,scores.original]
+let labels=["Hook","Emotion","Viral","Original"]
 
-let structure = `
-[Verse 1]
-Shadows falling from the sky
-Dreams are waking deep inside
-Every step is drawing near
-Breaking through the silent fear
-
-[Pre-Chorus]
-Every heartbeat getting stronger
-Every second lasts much longer
-
-[Chorus]
-${hookPhrase}
-Burning brighter through the light
-Hearts are rising even higher
-We ignite the endless night
-${hookPhrase}
-
-[Verse 2]
-Echoes turning into flame
-Nothing ever stays the same
-Through the storm we find the way
-Turning darkness into day
-
-[Pre-Chorus]
-Every heartbeat getting stronger
-Every second lasts much longer
-
-[Chorus]
-${hookPhrase}
-Burning brighter through the light
-Hearts are rising even higher
-We ignite the endless night
-${hookPhrase}
-
-[Bridge]
-When the world is crashing down
-We still stand our ground
-
-[Final Chorus]
-${hookPhrase}
-Now we shine beyond the fire
-Nothing stops us now
-We’re climbing higher
-`;
-
-return structure.trim();
+for(let i=0;i<values.length;i++){
+let height=values[i]
+ctx.fillStyle="#00ffc3"
+ctx.fillRect(20+i*90,180-height,50,height)
+ctx.fillStyle="#fff"
+ctx.fillText(labels[i],25+i*90,195)
+}
 }
 
-function calculateScore(dna){
-let score = Math.min(100, 
-50 + dna.repetition*10 + (dna.words/20)
-);
-return Math.round(score);
-}
+function buildOutput(artistType){
 
-function buildPrompt(song,style,score){
+let emotion=document.getElementById("emotion").value
+let genre=document.getElementById("genre").value
+let title=generateTitle(emotion)
+let scores=generateScores()
 
-let styleMap={
-"80s":"80s Synth Pop Anthem, analog bass, gated snare, big chorus stack",
-"90sTH":"90s Thai Emotional Ballad, piano intro, emotional build, key change",
-"ModernPop":"Modern Stadium Pop, cinematic intro, powerful drop chorus",
-"ElectroPop":"Electro Pop Diva Anthem, punchy kick, layered harmonies"
-};
+drawChart(scores)
 
 return `
-Artist Style: ${styleMap[style]}
-Tempo: 100-110 BPM
-Key: Major key, final chorus +1 modulation
-Energy Curve: Intro → Build → Explosive Chorus → Emotional Bridge → Final Lift
+=== 🎼 TITLE ===
+${title}
 
-Hit Score Estimate: ${score}/100
+=== 🎤 Artist Type ===
+${artistType}
 
-Lyrics:
-${song}
-`;
+=== 🎧 Genre ===
+${genre}
+
+=== 🎶 CHORUS SAMPLE ===
+${title} ฉันยังเรียกเธอ
+แม้คืนจะไม่มีเธอ
+${title} ยังอยู่ข้างใน
+
+=== 📊 SCORES ===
+Hook: ${scores.hook}%
+Emotion: ${scores.emotion}%
+Viral: ${scores.viral}%
+Originality: ${scores.original}%
+
+=== 🎼 SUNO PROMPT ===
+Artist: ${artistType}
+Genre: ${genre}
+Mood: ${emotion || "Emotional Pop"}
+Structure:
+[Verse]
+[Pre-Chorus]
+[Chorus]
+[Verse 2]
+[Bridge]
+[Final Chorus]
+`
 }
 
-function generate(){
-
-let input=document.getElementById("inputLyrics").value;
-if(!input){
-alert("Please paste original lyrics first.");
-return;
+function runSystem(){
+let output=buildOutput("Auto Artist")
+document.getElementById("output").innerText=output
 }
 
-let dna=analyzeDNA(input);
-let newSong=generateNewSong(dna,document.getElementById("style").value);
-let score=calculateScore(dna);
-let prompt=buildPrompt(newSong,document.getElementById("style").value,score);
+function generateMulti(){
+let types=[
+"Thai Male Artist",
+"Thai Female Artist",
+"International Male Artist",
+"International Female Artist"
+]
+let result=""
+types.forEach(t=>{
+result+="\n====================\n"
+result+=buildOutput(t)
+})
+document.getElementById("output").innerText=result
+}
 
-document.getElementById("dnaOut").innerText=
-"Lines: "+dna.lines+
-"\nWords: "+dna.words+
-"\nRepetition: "+dna.repetition+
-"\nAverage Line Length: "+dna.avgLength;
-
-document.getElementById("songOut").innerText=newSong;
-
-document.getElementById("scoreOut").innerHTML=
-"<div class='score'>Hit Score: "+score+"/100</div>";
-
-document.getElementById("promptOut").innerText=prompt;
-
+function randomAll(){
+const emotions=["คลั่งรัก","midnight drive","toxic love","summer crush"]
+document.getElementById("emotion").value=randomItem(emotions)
+document.getElementById("artist").value=""
+document.getElementById("prototypeSong").value=""
+runSystem()
 }
 
 </script>
