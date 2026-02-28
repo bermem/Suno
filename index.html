@@ -1,39 +1,111 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<title>Digital Song Factory V3.0 STABLE</title>
-<style>
-body{font-family:Arial;background:#0f0f0f;color:#eee;padding:20px}
-h1{color:#00ffc3}
-.section{border:1px solid #333;padding:15px;margin-bottom:20px;border-radius:10px}
-input,textarea,select,button{width:100%;padding:8px;margin-top:6px;margin-bottom:10px;border-radius:6px;border:none}
-textarea{height:220px}
-button{background:#00ffc3;color:#000;font-weight:bold;cursor:pointer}
-button:hover{opacity:.85}
-.output{background:#1b1b1b;padding:15px;border-radius:8px;white-space:pre-wrap}
-.row{display:flex;gap:10px}
-.small{font-size:12px;color:#aaa}
-canvas{background:#111;border-radius:10px;margin-top:10px}
-</style>
-</head>
-<body>
+// ================================
+// SUNO STABLE V3 – PERFORMANCE OPTIMIZED
+// ================================
 
-<h1>🎵 Digital Song Factory V3.0 STABLE</h1>
+class SunoEngine {
 
-<div class="section">
-<h3>INPUT ZONE</h3>
+  constructor() {
+    this.artistLock = null
+    this.cache = new Map()
+  }
 
-<label>Prototype Artist</label>
-<input type="text" id="artist">
+  // ---------- RANDOM FAST ----------
+  randomPick(arr){
+    return arr[Math.floor(Math.random()*arr.length)]
+  }
 
-<label>Prototype Song Title</label>
-<input type="text" id="prototypeSong">
+  randomTitle(){
+    const words1 = ["Midnight","Neon","Silent","Golden","Falling","Crimson","Velvet"]
+    const words2 = ["Dream","Echo","Light","Shadow","Fire","Sky","Rain"]
+    return this.randomPick(words1)+" "+this.randomPick(words2)
+  }
 
-<label>Creative Emotion</label>
-<input type="text" id="emotion">
+  randomMood(){
+    return this.randomPick(["Emotional","Dark Pop","Summer Vibes","Melancholic","Upbeat","Romantic"])
+  }
 
-<label>Original Lyrics</label>
-<textarea id="lyrics"></textarea>
+  // ---------- ARTIST LOCK ----------
+  lockArtist(name){
+    this.artistLock = name
+  }
 
-<button
+  unlockArtist(){
+    this.artistLock = null
+  }
+
+  getArtist(input){
+    if(this.artistLock) return this.artistLock
+    return input || "AI Generated Artist"
+  }
+
+  // ---------- RHYME PATTERN ----------
+  rhymePattern(type){
+    const patterns = {
+      AABB: ["a","a","b","b"],
+      ABAB: ["a","b","a","b"],
+      AAAA: ["a","a","a","a"]
+    }
+    return patterns[type] || patterns.AABB
+  }
+
+  // ---------- SMART RHYME (LIGHTWEIGHT) ----------
+  smartRhyme(baseLine, pattern){
+    const endings = {
+      a: ["ใจ","ไป","ไกล","ใหม่"],
+      b: ["คืน","ฝืน","ยืน","ชื่น"]
+    }
+    return pattern.map(p=>{
+      const word = this.randomPick(endings[p])
+      return baseLine+" "+word
+    }).join("\n")
+  }
+
+  // ---------- LYRICS GENERATOR ----------
+  generateLyrics({original, mood, patternType}){
+
+    const cacheKey = original+mood+patternType
+    if(this.cache.has(cacheKey)) return this.cache.get(cacheKey)
+
+    const pattern = this.rhymePattern(patternType)
+
+    let lyrics
+
+    if(original){
+      lyrics = this.smartRhyme(original, pattern)
+    } else {
+      const seed = mood || this.randomMood()
+      lyrics = this.smartRhyme("ในคืนที่ "+seed, pattern)
+    }
+
+    this.cache.set(cacheKey, lyrics)
+    return lyrics
+  }
+
+  // ---------- ALGORITHM PROOF REWRITE ----------
+  rewriteAlgorithmProof(text){
+    return text.split("\n").map(line=>{
+      return line.replace("รัก","โอบกอด").replace("ใจ","หัวใจ")
+    }).join("\n")
+  }
+
+  // ---------- FULL BUILD ----------
+  buildSong({
+    title,
+    artist,
+    lyrics,
+    mood,
+    pattern="AABB",
+    rewrite=false
+  }){
+
+    const finalTitle = title || this.randomTitle()
+    const finalArtist = this.getArtist(artist)
+    const finalLyrics = this.generateLyrics({
+      original: lyrics,
+      mood: mood,
+      patternType: pattern
+    })
+
+    const processedLyrics = rewrite
+      ? this.rewriteAlgorithmProof(finalLyrics)
+      : finalLyrics
