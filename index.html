@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>V9.0 Digital Song Factory – Suno Pro Export</title>
+<style>
+body{background:#0a0f18;color:#00ffd0;font-family:monospace;padding:20px}
+.container{max-width:1100px;margin:auto}
+textarea,select,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
+textarea{background:#111;color:#fff;height:140px}
+select{background:#111;color:#00ffd0}
+button{background:#00ffd0;color:#000;font-weight:bold}
+.output{background:#111;color:#fff;margin-top:15px;padding:15px;border-radius:6px;white-space:pre-wrap}
+.section{margin-top:30px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🎛 V9.0 – Suno Pro Export Mode</h1>
+
+<label>Artist Profile</label>
+<select id="artist">
+<option value="TH_MALE">Thai Male</option>
+<option value="TH_FEMALE">Thai Female</option>
+<option value="EN_MALE">International Male</option>
+<option value="EN_FEMALE">International Female</option>
+</select>
+
+<textarea id="lyrics" placeholder="Final optimized lyrics here..."></textarea>
+
+<button onclick="generatePrompt()">🎼 Generate Suno Pro Prompt</button>
+
+<div class="section">
+<h3>🚀 Suno Pro Production Prompt</h3>
+<div id="promptOut" class="output"></div>
+</div>
+
+</div>
+
+<script>
+
+function generatePrompt(){
+
+let artist=document.getElementById("artist").value;
+let lyrics=document.getElementById("lyrics").value;
+
+let profileData={
+TH_MALE:{
+style:"90s Thai Pop / Modern T-POP Emotional",
+voice:"Warm emotional male vocal, expressive mid range",
+tempo:"88 BPM",
+key:"Major key with uplifting modulation"
+},
+TH_FEMALE:{
+style:"Thai Pop Diva / 90s Stadium Ballad",
+voice:"Powerful female vocal with airy high notes",
+tempo:"90 BPM",
+key:"Major with key change final chorus"
+},
+EN_MALE:{
+style:"80s Synth Pop / Modern Retro Anthem",
+voice:"Strong chest voice, emotional hook delivery",
+tempo:"100 BPM",
+key:"Major anthem style"
+},
+EN_FEMALE:{
+style:"Electro Pop Diva / 90s Dance Anthem",
+voice:"Bright powerful female lead, wide dynamic range",
+tempo:"105 BPM",
+key:"Minor verse, major explosive chorus"
+}
+};
+
+let data=profileData[artist];
+
+let prompt=`
+Artist Style: ${data.style}
+Vocal Type: ${data.voice}
+Tempo: ${data.tempo}
+Key: ${data.key}
+
+Production:
+- Cinematic intro
+- Emotional verse build
+- Pre-chorus lift
+- Big anthemic chorus
+- Final key change modulation
+- Wide stereo synth layers
+- Punchy drums
+- Radio-ready master
+
+Lyrics:
+${lyrics}
+
+STRUCTURE:
+[Intro]
+[Verse]
+[Pre-Chorus]
+[Chorus]
+[Verse 2]
+[Chorus]
+[Bridge – Emotional Drop]
+[Final Chorus – Key Change + Adlibs]
+`;
+
+document.getElementById("promptOut").innerText=prompt;
+}
+
+</script>
+
+</body>
+</html>
