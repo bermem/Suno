@@ -2,112 +2,128 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>V9.0 Digital Song Factory – Suno Pro Export</title>
+<title>V13 Hit Compare Dashboard</title>
 <style>
 body{background:#0a0f18;color:#00ffd0;font-family:monospace;padding:20px}
-.container{max-width:1100px;margin:auto}
-textarea,select,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
-textarea{background:#111;color:#fff;height:140px}
-select{background:#111;color:#00ffd0}
-button{background:#00ffd0;color:#000;font-weight:bold}
-.output{background:#111;color:#fff;margin-top:15px;padding:15px;border-radius:6px;white-space:pre-wrap}
-.section{margin-top:30px}
+.container{max-width:1300px;margin:auto}
+textarea,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
+textarea{background:#111;color:#fff;height:220px}
+button{background:#00ffd0;color:#000;font-weight:bold;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+.card{background:#111;padding:15px;border-radius:6px}
+.score{font-size:22px;color:#00ff88}
+.rank{font-size:18px;color:#ffd700}
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>🎛 V9.0 – Suno Pro Export Mode</h1>
+<h1>🎛 V13 – Multi Artist Hit Compare Dashboard</h1>
 
-<label>Artist Profile</label>
-<select id="artist">
-<option value="TH_MALE">Thai Male</option>
-<option value="TH_FEMALE">Thai Female</option>
-<option value="EN_MALE">International Male</option>
-<option value="EN_FEMALE">International Female</option>
-</select>
+<textarea id="lyrics" placeholder="Paste full structured lyrics with [Chorus]..."></textarea>
 
-<textarea id="lyrics" placeholder="Final optimized lyrics here..."></textarea>
+<button onclick="compareAll()">📊 Compare 4 Artist Versions</button>
 
-<button onclick="generatePrompt()">🎼 Generate Suno Pro Prompt</button>
-
-<div class="section">
-<h3>🚀 Suno Pro Production Prompt</h3>
-<div id="promptOut" class="output"></div>
-</div>
+<div id="dashboard"></div>
 
 </div>
 
 <script>
 
-function generatePrompt(){
+function extractChorus(text){
+let lines=text.split("\n");
+let chorus=[];
+let inChorus=false;
 
-let artist=document.getElementById("artist").value;
-let lyrics=document.getElementById("lyrics").value;
-
-let profileData={
-TH_MALE:{
-style:"90s Thai Pop / Modern T-POP Emotional",
-voice:"Warm emotional male vocal, expressive mid range",
-tempo:"88 BPM",
-key:"Major key with uplifting modulation"
-},
-TH_FEMALE:{
-style:"Thai Pop Diva / 90s Stadium Ballad",
-voice:"Powerful female vocal with airy high notes",
-tempo:"90 BPM",
-key:"Major with key change final chorus"
-},
-EN_MALE:{
-style:"80s Synth Pop / Modern Retro Anthem",
-voice:"Strong chest voice, emotional hook delivery",
-tempo:"100 BPM",
-key:"Major anthem style"
-},
-EN_FEMALE:{
-style:"Electro Pop Diva / 90s Dance Anthem",
-voice:"Bright powerful female lead, wide dynamic range",
-tempo:"105 BPM",
-key:"Minor verse, major explosive chorus"
+for(let line of lines){
+if(line.includes("[Chorus]")){inChorus=true;continue;}
+if(line.startsWith("[") && inChorus){break;}
+if(inChorus && line.trim()!=""){chorus.push(line);}
 }
+return chorus.join(" ");
+}
+
+function scoreVersion(text,market){
+
+let words=text.split(/\s+/);
+let unique=new Set(words);
+let repetition=words.length-unique.size;
+
+let powerWords=["love","forever","fire","heart","higher","รัก","ใจ","ตลอดไป"];
+let powerScore=words.filter(w=>powerWords.includes(w.toLowerCase())).length;
+
+let hookPower=Math.min(25,words.length/2);
+let repetitionScore=Math.min(25,repetition*3);
+let emotionScore=Math.min(25,powerScore*5);
+
+let marketFit=market==="TH"?20:22;
+
+let total=hookPower+repetitionScore+emotionScore+marketFit;
+
+return {
+hookPower,
+repetitionScore,
+emotionScore,
+marketFit,
+total:Math.round(total)
+};
+}
+
+function compareAll(){
+
+let text=document.getElementById("lyrics").value;
+let chorus=extractChorus(text);
+
+if(!chorus){
+document.getElementById("dashboard").innerHTML="No [Chorus] detected.";
+return;
+}
+
+let versions={
+"TH Male":chorus+" รักเธอสุดใจ",
+"TH Female":chorus+" รักเธอหมดใจตลอดไป",
+"EN Male":chorus+" forever stronger higher",
+"EN Female":chorus+" burning brighter forever"
 };
 
-let data=profileData[artist];
+let results=[];
 
-let prompt=`
-Artist Style: ${data.style}
-Vocal Type: ${data.voice}
-Tempo: ${data.tempo}
-Key: ${data.key}
+for(let name in versions){
 
-Production:
-- Cinematic intro
-- Emotional verse build
-- Pre-chorus lift
-- Big anthemic chorus
-- Final key change modulation
-- Wide stereo synth layers
-- Punchy drums
-- Radio-ready master
+let market=name.includes("TH")?"TH":"EN";
+let score=scoreVersion(versions[name],market);
 
-Lyrics:
-${lyrics}
+results.push({
+name,
+...score
+});
+}
 
-STRUCTURE:
-[Intro]
-[Verse]
-[Pre-Chorus]
-[Chorus]
-[Verse 2]
-[Chorus]
-[Bridge – Emotional Drop]
-[Final Chorus – Key Change + Adlibs]
+results.sort((a,b)=>b.total-a.total);
+
+let output="<div class='grid'>";
+
+results.forEach((r,index)=>{
+
+output+=`
+<div class="card">
+<div class="rank">Rank ${index+1}</div>
+<strong>${r.name}</strong>
+<div class="score">${r.total}/100</div>
+Hook Power: ${r.hookPower}/25<br>
+Repetition: ${r.repetitionScore}/25<br>
+Emotion: ${r.emotionScore}/25<br>
+Market Fit: ${r.marketFit}/25
+</div>
 `;
+});
 
-document.getElementById("promptOut").innerText=prompt;
+output+="</div>";
+
+document.getElementById("dashboard").innerHTML=output;
+
 }
 
 </script>
-
 </body>
 </html>
