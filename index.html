@@ -3,20 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DNA Song Generator</title>
-
-<meta name="theme-color" content="#0f0f14">
-
-<link rel="manifest" href="manifest.json">
+<title>DNA Song Generator PRO v2</title>
 
 <style>
 body{
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   background:#0f0f14;
   color:white;
   padding:20px;
 }
-h1{margin-top:0}
 input,select,button,textarea{
   width:100%;
   padding:10px;
@@ -30,14 +25,10 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
-button:hover{background:#ff3399;}
 textarea{
-  height:140px;
+  height:220px;
   background:#1b1b25;
   color:#00ffcc;
-}
-.install{
-  background:#00c896;
 }
 .section{
   margin-top:20px;
@@ -49,102 +40,140 @@ textarea{
 </head>
 <body>
 
-<h1>🎵 DNA Song Generator</h1>
+<h1>🎵 DNA Song Generator – Stable V1 PRO v2</h1>
 
-<button id="installBtn" class="install" style="display:none;">
-Install App
-</button>
-
-<input id="artist" placeholder="Reference Artist">
+<input id="theme" placeholder="Song Theme (e.g. Lost Love, Party Night, Freedom)">
 <select id="mood">
+<option>Emotional Anthem</option>
 <option>Disco Energetic</option>
 <option>Romantic Groove</option>
-<option>Dark Synth</option>
-<option>Emotional Anthem</option>
+<option>Dark Synth Pop</option>
 </select>
 
-<button onclick="generateSong()">Generate Song</button>
+<button onclick="generateSong()">Generate 4-5 Min Narrative Song</button>
 
 <div class="section">
-<h3>Title</h3>
+<h3>Song Title</h3>
 <textarea id="title"></textarea>
 </div>
 
 <div class="section">
-<h3>Style</h3>
+<h3>Suno Style Prompt</h3>
 <textarea id="style"></textarea>
 </div>
 
 <div class="section">
-<h3>Lyrics</h3>
+<h3>Full Lyrics (Narrative Engine)</h3>
 <textarea id="lyrics"></textarea>
 </div>
 
 <script>
-function random(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
+
+function cap(str){
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 function generateSong(){
-  const artist = document.getElementById("artist").value;
+
+  const theme = document.getElementById("theme").value || "Midnight Fire";
   const mood = document.getElementById("mood").value;
 
-  const words = ["Midnight","Neon","Fever","Shadow","Heartbeat","Electric","Starlight"];
-  const title = random(words)+" "+random(words);
+  const title = cap(theme);
 
-  const style =
-`Inspired by: ${artist}
-Mood: ${mood}
-Tempo: 110-118 BPM
-Structure: Intro – Verse – Pre-Chorus – Chorus – Bridge – Final Chorus
-Production: Wide stereo harmony, groovy bass, dynamic chorus lift`;
+  // STORY ARC
 
-  const lyrics =
-`[Verse]
-City lights calling your name
-Heartbeat dancing in flame
+  const verse1 =
+`I remember how it started slow
+City lights and a heart of gold
+We were young, we were fearless then
+Chasing dreams we couldn't hold
+Every whisper felt so real
+Every touch electric steel
+We believed in endless skies
+Burning bright in our own light`;
 
-[Chorus]
+  const pre =
+`But the night was calling louder
+Feel the rhythm taking over
+No more hiding in the shadows
+Let it rise, let it rise`;
+
+  const chorus =
+`${title}
+We are rising through the flame
 ${title}
-Burning in the night
-Higher and higher
-Into the light`;
+Nothing's ever gonna be the same
+Higher, higher we ignite
+Shining in the darkest night`;
+
+  const verse2 =
+`Now the story's turning fast
+Broken mirrors from the past
+Every scar became a spark
+Lighting up the deepest dark
+We were falling just to learn
+Every loss became a burn
+From the ashes we arise
+Stronger now before your eyes`;
+
+  const bridge =
+`When the world goes silent
+And the lights fade down
+Hear the echo of our heartbeat sound
+We are more than moments
+More than yesterday
+We are fire that won't fade away`;
+
+  const fullLyrics =
+
+`[Intro – Ambient Build 8 Bars]
+
+[Verse 1 – Beginning]
+${verse1}
+
+[Pre-Chorus – Rising Tension]
+${pre}
+
+[Chorus – Emotional Peak]
+${chorus}
+
+[Verse 2 – Conflict & Growth]
+${verse2}
+
+[Pre-Chorus]
+${pre}
+
+[Chorus x2]
+${chorus}
+
+[Bridge – Dynamic Drop / Half-Time Feel]
+${bridge}
+
+[Final Chorus – Big Lift + Adlibs]
+${chorus}
+(Extended harmonies & vocal layers fade out)`;
+
+  const stylePrompt =
+`Mood: ${mood}
+Theme: ${theme}
+Length Target: 4-5 Minutes
+Narrative Arc: Beginning → Conflict → Rise → Resolution
+Structure: Intro – V1 – Pre – Chorus – V2 – Pre – Chorus x2 – Bridge – Final Chorus
+Production:
+• Wide stereo harmonies
+• Dynamic chorus expansion
+• Layered background vocals
+• Sub bass control
+• Clean vocal front mix
+• Large cinematic soundstage
+• Headphone & Speaker optimized
+World Production Studio Quality`;
 
   document.getElementById("title").value = title;
-  document.getElementById("style").value = style;
-  document.getElementById("lyrics").value = lyrics;
-
-  // Auto Save to LocalStorage
-  localStorage.setItem("dnaSong", JSON.stringify({title,style,lyrics}));
+  document.getElementById("style").value = stylePrompt;
+  document.getElementById("lyrics").value = fullLyrics;
 }
 
-// Load saved song automatically
-window.onload = function(){
-  const saved = localStorage.getItem("dnaSong");
-  if(saved){
-    const data = JSON.parse(saved);
-    document.getElementById("title").value = data.title;
-    document.getElementById("style").value = data.style;
-    document.getElementById("lyrics").value = data.lyrics;
-  }
-};
-
-/* Install Button */
-let deferredPrompt;
-const installBtn = document.getElementById("installBtn");
-
-window.addEventListener("beforeinstallprompt",(e)=>{
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = "block";
-});
-
-installBtn.addEventListener("click", async ()=>{
-  installBtn.style.display = "none";
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
 </script>
 
 </body>
