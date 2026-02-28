@@ -2,24 +2,25 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>V10 Production Digital Song Factory</title>
+<title>V9.5 Full Digital Song Factory</title>
 <style>
 body{background:#0a0f18;color:#00ffd0;font-family:monospace;padding:20px}
 .container{max-width:1100px;margin:auto}
 textarea,select,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
-textarea{background:#111;color:#fff;height:180px}
+textarea{background:#111;color:#fff;height:150px}
 select{background:#111;color:#00ffd0}
 button{background:#00ffd0;color:#000;font-weight:bold;cursor:pointer}
 .output{background:#111;color:#fff;margin-top:15px;padding:15px;border-radius:6px;white-space:pre-wrap}
 .section{margin-top:30px}
-.score{color:#00ff88;font-size:20px}
+.score{color:#00ff88;font-size:18px}
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>🎛 V10 Production Grade Factory</h1>
+<h1>🎛 V9.5 Full Digital Song Factory</h1>
 
+<label>Artist Profile</label>
 <select id="artist">
 <option value="TH_MALE">Thai Male</option>
 <option value="TH_FEMALE">Thai Female</option>
@@ -27,101 +28,115 @@ button{background:#00ffd0;color:#000;font-weight:bold;cursor:pointer}
 <option value="EN_FEMALE">International Female</option>
 </select>
 
-<textarea id="lyrics" placeholder="Paste structured lyrics with [Verse] [Chorus] etc..."></textarea>
+<textarea id="lyrics" placeholder="Paste full lyrics here..."></textarea>
 
-<button onclick="autoMode()">⚡ AUTO MODE (Analyze All)</button>
+<button onclick="analyzeDNA()">🔍 Analyze DNA</button>
+<button onclick="melodyDNA()">🎼 Melody DNA</button>
+<button onclick="optimizeHook()">🎯 Optimize Hook</button>
+<button onclick="hitScore()">📊 Hit Score</button>
+<button onclick="exportPrompt()">🚀 Export Suno Prompt</button>
 
-<div class="section"><h3>🧬 DNA Report</h3><div id="dna" class="output"></div></div>
-<div class="section"><h3>🎯 Hook Optimization</h3><div id="hook" class="output"></div></div>
-<div class="section"><h3>🎼 Melody DNA</h3><div id="melody" class="output"></div></div>
-<div class="section"><h3>🔥 Hit Score</h3><div id="hit" class="output"></div></div>
-<div class="section"><h3>🚀 Suno Export Prompt</h3><div id="prompt" class="output"></div></div>
+<div class="section">
+<h3>🧬 DNA Report</h3>
+<div id="dnaOut" class="output"></div>
+</div>
+
+<div class="section">
+<h3>🎼 Melody Suggestion</h3>
+<div id="melodyOut" class="output"></div>
+</div>
+
+<div class="section">
+<h3>🎯 Hook Optimized</h3>
+<div id="hookOut" class="output"></div>
+</div>
+
+<div class="section">
+<h3>🔥 Hit Potential</h3>
+<div id="hitOut" class="output"></div>
+</div>
+
+<div class="section">
+<h3>🚀 Suno Prompt</h3>
+<div id="promptOut" class="output"></div>
+</div>
 
 </div>
 
 <script>
 
-function extractSections(text){
-let sections={};
-let current="Unknown";
-text.split("\n").forEach(line=>{
-if(line.match(/\[(.*?)\]/)){
-current=line.replace(/\[|\]/g,"");
-sections[current]=[];
-}else{
-if(!sections[current]) sections[current]=[];
-if(line.trim()!="") sections[current].push(line);
-}
-});
-return sections;
-}
-
-function autoMode(){
-
+function analyzeDNA(){
 let text=document.getElementById("lyrics").value;
-let sections=extractSections(text);
+let lines=text.split("\n").filter(l=>l.trim()!="");
+let words=text.split(/\s+/);
 
-let chorus=sections["Chorus"]||[];
-let verse=sections["Verse"]||[];
+let repetition=lines.length-new Set(lines).size;
+let avgLen=Math.round(lines.reduce((a,b)=>a+b.length,0)/lines.length||0);
 
-let hookText=chorus.join(" ");
-let hookWords=hookText.split(/\s+/);
-let repetition=chorus.length-new Set(chorus).size;
+document.getElementById("dnaOut").innerText=
+"Lines: "+lines.length+
+"\nAverage Line Length: "+avgLen+
+"\nRepetition Score: "+repetition+
+"\nTotal Words: "+words.length;
+}
 
-let powerWords=["love","forever","fire","heart","higher","รัก","ใจ","ตลอดไป"];
-let powerScore=hookWords.filter(w=>powerWords.includes(w.toLowerCase())).length;
+function melodyDNA(){
+let text=document.getElementById("lyrics").value;
+let len=text.length;
 
-let hookLengthScore=Math.max(0,100-hookWords.length);
+let contour=len>400?"Low→Mid→High Big Lift":"Mid→High Anthem";
+let scale=len>350?"Minor Emotional":"Major Anthemic";
 
-let structureBalance=Math.abs(chorus.length-verse.length);
+document.getElementById("melodyOut").innerText=
+"Suggested Scale: "+scale+
+"\nMelody Contour: "+contour+
+"\nFinal Chorus: +1 Tone Key Change";
+}
 
-let finalScore=Math.min(100,
-(hookLengthScore*0.4)+
-(repetition*10*0.2)+
-(powerScore*10*0.2)+
-((20-structureBalance)*0.2)
-);
+function optimizeHook(){
+let lines=document.getElementById("lyrics").value.split("\n").filter(l=>l.trim()!="");
+let hook=lines.slice(0,2).join(" ");
 
-document.getElementById("dna").innerText=
-"Verse Lines: "+verse.length+
-"\nChorus Lines: "+chorus.length+
-"\nHook Words: "+hookWords.length+
-"\nRepetition in Chorus: "+repetition+
-"\nPower Words in Hook: "+powerScore;
+hook+=" forever higher!";
+document.getElementById("hookOut").innerText=hook;
+}
 
-let optimizedHook=hookText+" forever higher!";
-document.getElementById("hook").innerText=optimizedHook;
+function hitScore(){
+let text=document.getElementById("lyrics").value.toLowerCase();
+let words=text.split(/\s+/);
+let lines=text.split("\n").filter(l=>l.trim()!="");
 
-let melodySuggestion=
-"Scale: "+(hookWords.length>20?"Minor Emotional":"Major Anthemic")+
-"\nEnergy Lift: "+(chorus.length>verse.length?"Strong Lift":"Balanced")+
-"\nFinal Chorus: +1 Key Modulation";
+let repetition=lines.length-new Set(lines).size;
+let powerWords=["love","fire","forever","heart","รัก","ใจ","ตลอดไป"];
+let powerScore=words.filter(w=>powerWords.includes(w)).length*5;
 
-document.getElementById("melody").innerText=melodySuggestion;
+let score=Math.min(100,50+repetition*10+powerScore);
 
-document.getElementById("hit").innerHTML=
-"<div class='score'>Hit Score: "+Math.round(finalScore)+"/100</div>"+
-"\nRadio Potential: "+(finalScore>70?"High":"Medium")+
-"\nViral Potential: "+(repetition>1?"High":"Medium");
+document.getElementById("hitOut").innerHTML=
+"<div class='score'>Hit Score: "+score+"/100</div>"+
+"\nRadio: "+(score>70?"High":"Medium")+
+"\nViral: "+(repetition>2?"High":"Medium");
+}
 
-let styleMap={
-TH_MALE:"90s Thai Emotional Pop",
+function exportPrompt(){
+
+let artist=document.getElementById("artist").value;
+let lyrics=document.getElementById("lyrics").value;
+
+let style={
+TH_MALE:"90s Thai Pop Emotional",
 TH_FEMALE:"Thai Diva Stadium Ballad",
-EN_MALE:"80s Synth Anthem",
+EN_MALE:"80s Synth Pop Anthem",
 EN_FEMALE:"Electro Pop Diva Anthem"
 };
 
-let artist=document.getElementById("artist").value;
+let prompt=
+"Artist Style: "+style[artist]+
+"\nProduction: Cinematic intro, emotional build, anthemic chorus, key change final"+
+"\n\nLyrics:\n"+lyrics+
+"\n\nStructure: Intro / Verse / Pre / Chorus / Verse / Chorus / Bridge / Final Chorus";
 
-let exportPrompt=
-"Artist Style: "+styleMap[artist]+
-"\nProduction: Cinematic intro, emotional verse, explosive chorus, final key change"+
-"\nHit Score: "+Math.round(finalScore)+
-"\n\nLyrics:\n"+text+
-"\n\nStructure: Intro / Verse / Pre-Chorus / Chorus / Verse 2 / Chorus / Bridge / Final Chorus";
-
-document.getElementById("prompt").innerText=exportPrompt;
-
+document.getElementById("promptOut").innerText=prompt;
 }
 
 </script>
