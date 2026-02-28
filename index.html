@@ -2,28 +2,27 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>V12 Multi-Artist Generator</title>
+<title>V11 Chorus A/B Testing Lab</title>
 <style>
 body{background:#0a0f18;color:#00ffd0;font-family:monospace;padding:20px}
-.container{max-width:1200px;margin:auto}
+.container{max-width:1100px;margin:auto}
 textarea,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
-textarea{background:#111;color:#fff;height:220px}
-button{background:#00ffd0;color:#000;font-weight:bold;cursor:pointer}
+textarea{background:#111;color:#fff;height:200px}
+button{background:#00ffd0;color:#000;font-weight:bold}
 .output{background:#111;color:#fff;margin-top:20px;padding:15px;border-radius:6px;white-space:pre-wrap}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.title{color:#00ff88;font-size:18px;margin-top:20px}
+.score{color:#00ff88;font-size:18px}
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>🎤 V12 – Multi-Artist Version Generator</h1>
+<h1>🎯 V11 – AI Chorus A/B Testing Lab</h1>
 
-<textarea id="lyrics" placeholder="Paste full structured lyrics with [Verse] [Chorus]..."></textarea>
+<textarea id="lyrics" placeholder="Paste full lyrics with [Chorus] section..."></textarea>
 
-<button onclick="generateAll()">🚀 Generate 4 Artist Versions</button>
+<button onclick="runABTest()">🚀 Run Chorus A/B Test</button>
 
-<div id="results"></div>
+<div id="result" class="output"></div>
 
 </div>
 
@@ -39,91 +38,53 @@ if(line.includes("[Chorus]")){inChorus=true;continue;}
 if(line.startsWith("[") && inChorus){break;}
 if(inChorus && line.trim()!=""){chorus.push(line);}
 }
-return chorus.join(" ");
+return chorus;
 }
 
-function adaptLyrics(base,style){
-
-if(style==="TH_MALE"){
-return base.replace(/รัก/g,"รักเธอ")
-+"\n(เสียงอบอุ่น ลึก มีพลังปลายฮุก)";
+function scoreHook(text){
+let words=text.split(/\s+/);
+let repetition=words.length-new Set(words).size;
+let powerWords=["love","forever","fire","heart","higher","รัก","ใจ","ตลอดไป"];
+let powerScore=words.filter(w=>powerWords.includes(w.toLowerCase())).length*5;
+return Math.min(100,50+(repetition*5)+powerScore);
 }
 
-if(style==="TH_FEMALE"){
-return base.replace(/รัก/g,"รักเธอหมดใจ")
-+"\n(โทนเสียงใส พุ่งสูง ปลายฮุกทรงพลัง)";
-}
-
-if(style==="EN_MALE"){
-return base
-+" forever stronger higher"
-+"\n(Strong chest voice, emotional lift)";
-}
-
-if(style==="EN_FEMALE"){
-return base
-+" burning brighter forever"
-+"\n(Bright powerful vocal, wide range)";
-}
-
-}
-
-function productionStyle(style){
-
-let map={
-TH_MALE:"90s Thai Emotional Pop, warm pads, live drums",
-TH_FEMALE:"Thai Diva Ballad, big reverb, piano intro, key change",
-EN_MALE:"80s Synth Anthem, analog bass, big chorus stack",
-EN_FEMALE:"Electro Pop Anthem, punchy kick, layered vocal stack"
-};
-
-return map[style];
-
-}
-
-function generateAll(){
+function runABTest(){
 
 let text=document.getElementById("lyrics").value;
-let chorus=extractChorus(text);
+let chorusLines=extractChorus(text);
+let base=chorusLines.join(" ");
 
-if(!chorus){
-document.getElementById("results").innerHTML="No [Chorus] detected.";
+if(!base){
+document.getElementById("result").innerText="No [Chorus] section detected.";
 return;
 }
 
-let artists=["TH_MALE","TH_FEMALE","EN_MALE","EN_FEMALE"];
-let output="<div class='grid'>";
+let A=base+"\n"+base;
+let B=base+" forever higher fire!";
+let C=base.split(" ").slice(0,6).join(" ");
+let D=base+" forever\n"+base+" higher\n"+base+" unstoppable!";
 
-artists.forEach(a=>{
+let versions={
+"A – Repetition Boost":A,
+"B – Power Word Boost":B,
+"C – Short Punch":C,
+"D – Escalation Build":D
+};
 
-let version=adaptLyrics(chorus,a);
-let prod=productionStyle(a);
+let output="";
+let bestScore=0;
+let winner="";
 
-output+=`
-<div class="output">
-<div class="title">${a}</div>
+for(let name in versions){
+let s=scoreHook(versions[name]);
+output+=name+"\n"+versions[name]+"\nScore: "+s+"\n\n";
+if(s>bestScore){bestScore=s;winner=name;}
+}
 
-Production:
-${prod}
+output+="🏆 WINNER: "+winner+" (Score "+bestScore+")";
 
-Chorus Version:
-${version}
-
-Full Prompt:
-Artist Style: ${prod}
-Cinematic intro, emotional build, explosive chorus, final key change
-
-Lyrics:
-${text}
-
-</div>
-`;
-
-});
-
-output+="</div>";
-
-document.getElementById("results").innerHTML=output;
+document.getElementById("result").innerText=output;
 
 }
 
