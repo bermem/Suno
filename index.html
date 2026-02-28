@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Suno Stable V3.3 – Hook Reinforcement Engine</title>
+<title>Suno Stable V3.4 – No Rhyme Mode</title>
 <style>
 body{font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:#fff;margin:0;padding:24px}
 .container{max-width:1100px;margin:auto;background:#1e293b;padding:28px;border-radius:16px;box-shadow:0 25px 50px rgba(0,0,0,.5)}
@@ -20,18 +20,13 @@ button{padding:10px 14px;margin:6px 6px 6px 0;border:none;border-radius:8px;curs
 </head>
 <body>
 <div class="container">
-<h1>Suno Stable V3.3 – Hook Reinforcement Engine</h1><label>Song Title</label> <input id="title" placeholder="Leave blank for AI auto title" />
+<h1>Suno Stable V3.4 – Clean Lyric Engine (No Rhyme)</h1><label>Song Title</label> <input id="title" placeholder="Leave blank for AI auto title" />
 
 <label>Artist</label> <input id="artist" placeholder="Leave blank or lock artist" />
 
 <label>Mood / Emotion</label> <input id="mood" placeholder="Romantic / Dark / Sad / Energetic" />
 
-<label>Rhyme Pattern</label> <select id="pattern">
-
-<option value="AABB">AABB</option>
-<option value="ABAB">ABAB</option>
-<option value="AAAA">AAAA</option>
-</select><label>Hook Intensity</label> <select id="hookLevel">
+<label>Hook Intensity</label> <select id="hookLevel">
 
 <option value="1">Normal</option>
 <option value="2">Strong</option>
@@ -57,73 +52,68 @@ return this.pick(a)+" "+this.pick(b);
 randomMood(){return this.pick(["Romantic","Dark Pop","Melancholic","Emotional Ballad","Summer Pop"])}
 };
 
-const AdvancedRhyme={
-patterns:{AABB:["a","a","b","b"],ABAB:["a","b","a","b"],AAAA:["a","a","a","a"]},
-endings:{
-a:["หัวใจที่สั่นไหว","คืนวันที่ห่างไกล","ความฝันบทใหม่","เส้นทางที่ก้าวไป"],
-b:["คืนเหงาที่เดียวดาย","คำถามที่มากมาย","ภาพเดิมไม่จางหาย","เสียงเรียกจากข้างใน"]
-},
-compose(seed,type){
-const pattern=this.patterns[type]||this.patterns.AABB;
-return pattern.map(p=>seed+" "+Utils.pick(this.endings[p])).join("\n");
-}
-};
-
 function extractDNA(text){
 const words=text.split(/\s+/).filter(w=>w.length>3);
 return words.length?Utils.pick(words):"ความทรงจำ";
 }
 
-function buildHeader(title,artist,mood,pattern,hook){
-return `Title: ${title}\nArtist: ${artist}\nMood: ${mood}\nPattern: ${pattern}\nHook Level: ${hook}\n\n`;
+function hookReinforce(text,level){
+if(level==="1") return text;
+if(level==="2") return text+"\n"+text;
+if(level==="3") return text+"\n"+text+"\n"+text;
 }
 
-function hookReinforce(line,level){
-if(level==="1") return line;
-if(level==="2") return line+"\n"+line;
-if(level==="3") return line+"\n"+line+"\n"+line;
+function buildHeader(title,artist,mood,hook){
+return `Title: ${title}\nArtist: ${artist}\nMood: ${mood}\nHook Level: ${hook}\n\n`;
 }
 
-function fullStructure(seed,mood,pattern,hookLevel){
-const hookBase=AdvancedRhyme.compose("หัวใจยังเรียกหา "+seed,pattern);
-const reinforcedHook=hookReinforce(hookBase,hookLevel);
+function naturalLine(seed,mood){
+const phrases=[
+`เมื่อ ${seed} ยังอยู่ในใจ`,
+`คืนหนึ่งที่เต็มไปด้วย ${mood}`,
+`ภาพความทรงจำไม่เคยจาง`,
+`เสียงหัวใจยังเรียกหาเธอ`,
+`ฉันยังเดินอยู่บนเส้นทางเดิม`
+];
+return Utils.pick(phrases);
+}
 
-return `[Intro]\n${seed}...\n\n`+
-`[Verse 1]\n${AdvancedRhyme.compose("เมื่อ "+seed,pattern)}\n\n`+
-`[Pre-Chorus]\n${AdvancedRhyme.compose("ทุกความรู้สึก "+mood,pattern)}\n\n`+
-`[Chorus]\n${reinforcedHook}\n\n`+
-`[Verse 2]\n${AdvancedRhyme.compose("ในวันที่ไม่มี "+seed,pattern)}\n\n`+
-`[Final Chorus]\n${reinforcedHook}`;
+function fullStructure(seed,mood,hookLevel){
+const verse1=`${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}`;
+const pre=`${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}`;
+const chorusBase=`หัวใจยังเรียกหา ${seed}`;
+const chorus=hookReinforce(chorusBase,hookLevel);
+const verse2=`${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}\n${naturalLine(seed,mood)}`;
+
+return `[Verse 1]\n${verse1}\n\n[Pre-Chorus]\n${pre}\n\n[Chorus]\n${chorus}\n\n[Verse 2]\n${verse2}\n\n[Final Chorus]\n${chorus}`;
 }
 
 function buildSong(){
 const title=document.getElementById("title").value||Utils.randomTitle();
-const artist=lockedArtist||document.getElementById("artist").value||"AI Generated Artist";
+const artist=document.getElementById("artist").value||"AI Generated Artist";
 const mood=document.getElementById("mood").value||Utils.randomMood();
-const pattern=document.getElementById("pattern").value;
 const hookLevel=document.getElementById("hookLevel").value;
 const original=document.getElementById("lyrics").value.trim();
 
-const seed=original||("ในคืนที่ "+mood);
-const lyrics=fullStructure(seed,mood,pattern,hookLevel);
+const seed=original||mood;
+const lyrics=fullStructure(seed,mood,hookLevel);
 
 document.getElementById("output").innerText=
-buildHeader(title,artist,mood,pattern,hookLevel)+lyrics;
+buildHeader(title,artist,mood,hookLevel)+lyrics;
 }
 
 function dnaFullRewrite(){
 const original=document.getElementById("lyrics").value.trim();
 const mood=document.getElementById("mood").value||Utils.randomMood();
-const pattern=document.getElementById("pattern").value;
 const hookLevel=document.getElementById("hookLevel").value;
 const title=document.getElementById("title").value||Utils.randomTitle();
-const artist=lockedArtist||document.getElementById("artist").value||"AI Generated Artist";
+const artist=document.getElementById("artist").value||"AI Generated Artist";
 
 const seed=extractDNA(original||mood);
-const song=fullStructure(seed,mood,pattern,hookLevel);
+const song=fullStructure(seed,mood,hookLevel);
 
 document.getElementById("output").innerText=
-buildHeader(title,artist,mood,pattern,hookLevel)+song;
+buildHeader(title,artist,mood,hookLevel)+song;
 }
 
 function upgradeLyrics(){
@@ -135,7 +125,7 @@ function rewriteSong(){
 const out=document.getElementById("output");
 const lines=out.innerText.split("\n");
 out.innerText=lines.map(l=>
-l.startsWith("Title:")||l.startsWith("Artist:")||l.startsWith("Mood:")||l.startsWith("Pattern:")||l.startsWith("Hook Level:")?l:"ฉันยังจำ "+l
+l.startsWith("Title:")||l.startsWith("Artist:")||l.startsWith("Mood:")||l.startsWith("Hook Level:")?l:"ฉันยังจำ "+l
 ).join("\n");
 }
 </script></body>
