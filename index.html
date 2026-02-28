@@ -2,89 +2,125 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>V11 Chorus A/B Testing Lab</title>
+<title>V10 Production Digital Song Factory</title>
 <style>
 body{background:#0a0f18;color:#00ffd0;font-family:monospace;padding:20px}
 .container{max-width:1100px;margin:auto}
-textarea,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
-textarea{background:#111;color:#fff;height:200px}
-button{background:#00ffd0;color:#000;font-weight:bold}
-.output{background:#111;color:#fff;margin-top:20px;padding:15px;border-radius:6px;white-space:pre-wrap}
-.score{color:#00ff88;font-size:18px}
+textarea,select,button{width:100%;margin-top:10px;padding:10px;border-radius:6px;border:none;font-family:monospace}
+textarea{background:#111;color:#fff;height:180px}
+select{background:#111;color:#00ffd0}
+button{background:#00ffd0;color:#000;font-weight:bold;cursor:pointer}
+.output{background:#111;color:#fff;margin-top:15px;padding:15px;border-radius:6px;white-space:pre-wrap}
+.section{margin-top:30px}
+.score{color:#00ff88;font-size:20px}
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>🎯 V11 – AI Chorus A/B Testing Lab</h1>
+<h1>🎛 V10 Production Grade Factory</h1>
 
-<textarea id="lyrics" placeholder="Paste full lyrics with [Chorus] section..."></textarea>
+<select id="artist">
+<option value="TH_MALE">Thai Male</option>
+<option value="TH_FEMALE">Thai Female</option>
+<option value="EN_MALE">International Male</option>
+<option value="EN_FEMALE">International Female</option>
+</select>
 
-<button onclick="runABTest()">🚀 Run Chorus A/B Test</button>
+<textarea id="lyrics" placeholder="Paste structured lyrics with [Verse] [Chorus] etc..."></textarea>
 
-<div id="result" class="output"></div>
+<button onclick="autoMode()">⚡ AUTO MODE (Analyze All)</button>
+
+<div class="section"><h3>🧬 DNA Report</h3><div id="dna" class="output"></div></div>
+<div class="section"><h3>🎯 Hook Optimization</h3><div id="hook" class="output"></div></div>
+<div class="section"><h3>🎼 Melody DNA</h3><div id="melody" class="output"></div></div>
+<div class="section"><h3>🔥 Hit Score</h3><div id="hit" class="output"></div></div>
+<div class="section"><h3>🚀 Suno Export Prompt</h3><div id="prompt" class="output"></div></div>
 
 </div>
 
 <script>
 
-function extractChorus(text){
-let lines=text.split("\n");
-let chorus=[];
-let inChorus=false;
-
-for(let line of lines){
-if(line.includes("[Chorus]")){inChorus=true;continue;}
-if(line.startsWith("[") && inChorus){break;}
-if(inChorus && line.trim()!=""){chorus.push(line);}
+function extractSections(text){
+let sections={};
+let current="Unknown";
+text.split("\n").forEach(line=>{
+if(line.match(/\[(.*?)\]/)){
+current=line.replace(/\[|\]/g,"");
+sections[current]=[];
+}else{
+if(!sections[current]) sections[current]=[];
+if(line.trim()!="") sections[current].push(line);
 }
-return chorus;
-}
-
-function scoreHook(text){
-let words=text.split(/\s+/);
-let repetition=words.length-new Set(words).size;
-let powerWords=["love","forever","fire","heart","higher","รัก","ใจ","ตลอดไป"];
-let powerScore=words.filter(w=>powerWords.includes(w.toLowerCase())).length*5;
-return Math.min(100,50+(repetition*5)+powerScore);
+});
+return sections;
 }
 
-function runABTest(){
+function autoMode(){
 
 let text=document.getElementById("lyrics").value;
-let chorusLines=extractChorus(text);
-let base=chorusLines.join(" ");
+let sections=extractSections(text);
 
-if(!base){
-document.getElementById("result").innerText="No [Chorus] section detected.";
-return;
-}
+let chorus=sections["Chorus"]||[];
+let verse=sections["Verse"]||[];
 
-let A=base+"\n"+base;
-let B=base+" forever higher fire!";
-let C=base.split(" ").slice(0,6).join(" ");
-let D=base+" forever\n"+base+" higher\n"+base+" unstoppable!";
+let hookText=chorus.join(" ");
+let hookWords=hookText.split(/\s+/);
+let repetition=chorus.length-new Set(chorus).size;
 
-let versions={
-"A – Repetition Boost":A,
-"B – Power Word Boost":B,
-"C – Short Punch":C,
-"D – Escalation Build":D
+let powerWords=["love","forever","fire","heart","higher","รัก","ใจ","ตลอดไป"];
+let powerScore=hookWords.filter(w=>powerWords.includes(w.toLowerCase())).length;
+
+let hookLengthScore=Math.max(0,100-hookWords.length);
+
+let structureBalance=Math.abs(chorus.length-verse.length);
+
+let finalScore=Math.min(100,
+(hookLengthScore*0.4)+
+(repetition*10*0.2)+
+(powerScore*10*0.2)+
+((20-structureBalance)*0.2)
+);
+
+document.getElementById("dna").innerText=
+"Verse Lines: "+verse.length+
+"\nChorus Lines: "+chorus.length+
+"\nHook Words: "+hookWords.length+
+"\nRepetition in Chorus: "+repetition+
+"\nPower Words in Hook: "+powerScore;
+
+let optimizedHook=hookText+" forever higher!";
+document.getElementById("hook").innerText=optimizedHook;
+
+let melodySuggestion=
+"Scale: "+(hookWords.length>20?"Minor Emotional":"Major Anthemic")+
+"\nEnergy Lift: "+(chorus.length>verse.length?"Strong Lift":"Balanced")+
+"\nFinal Chorus: +1 Key Modulation";
+
+document.getElementById("melody").innerText=melodySuggestion;
+
+document.getElementById("hit").innerHTML=
+"<div class='score'>Hit Score: "+Math.round(finalScore)+"/100</div>"+
+"\nRadio Potential: "+(finalScore>70?"High":"Medium")+
+"\nViral Potential: "+(repetition>1?"High":"Medium");
+
+let styleMap={
+TH_MALE:"90s Thai Emotional Pop",
+TH_FEMALE:"Thai Diva Stadium Ballad",
+EN_MALE:"80s Synth Anthem",
+EN_FEMALE:"Electro Pop Diva Anthem"
 };
 
-let output="";
-let bestScore=0;
-let winner="";
+let artist=document.getElementById("artist").value;
 
-for(let name in versions){
-let s=scoreHook(versions[name]);
-output+=name+"\n"+versions[name]+"\nScore: "+s+"\n\n";
-if(s>bestScore){bestScore=s;winner=name;}
-}
+let exportPrompt=
+"Artist Style: "+styleMap[artist]+
+"\nProduction: Cinematic intro, emotional verse, explosive chorus, final key change"+
+"\nHit Score: "+Math.round(finalScore)+
+"\n\nLyrics:\n"+text+
+"\n\nStructure: Intro / Verse / Pre-Chorus / Chorus / Verse 2 / Chorus / Bridge / Final Chorus";
 
-output+="🏆 WINNER: "+winner+" (Score "+bestScore+")";
-
-document.getElementById("result").innerText=output;
+document.getElementById("prompt").innerText=exportPrompt;
 
 }
 
